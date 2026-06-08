@@ -48,7 +48,8 @@ export default function ResponsePanel({ response, loading, error }: Props) {
       <div className="response-panel">
         <div className="response-empty">
           <IconRocket />
-          <p>Enter a URL and click Send to get a response</p>
+          <h3>Ready</h3>
+          <p>Response details will appear here.</p>
         </div>
       </div>
     );

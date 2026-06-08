@@ -24,10 +24,17 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
       PATCH: '#22d3ee',
       HEAD: '#94a3b8',
       OPTIONS: '#3b82f6',
-      WS: '#8b5cf6',
-      WSS: '#8b5cf6',
+      WS: '#2dd4bf',
+      WSS: '#2dd4bf',
     };
     return colors[method] || '#94a3b8';
+  };
+
+  const statusClass = (status: number) => {
+    if (status < 300) return 'status-success';
+    if (status < 400) return 'status-redirect';
+    if (status < 500) return 'status-client-error';
+    return 'status-server-error';
   };
 
   return (
@@ -47,7 +54,7 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
       />
       <div className="history-list">
         {filtered.length === 0 && (
-          <div className="history-empty">No history yet</div>
+          <div className="history-empty">No matching requests</div>
         )}
         {filtered.map(item => (
           <div
@@ -63,10 +70,10 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
               {item.method}
             </span>
             <span className="history-url">
-              {item.url.length > 35 ? item.url.substring(0, 35) + '...' : item.url}
+              {item.url}
             </span>
             {item.status && (
-              <span className={`history-status ${item.status < 400 ? 'status-success' : 'status-error'}`}>
+              <span className={`history-status ${statusClass(item.status)}`}>
                 {item.status}
               </span>
             )}

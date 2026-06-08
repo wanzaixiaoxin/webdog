@@ -39,7 +39,9 @@ export function buildUrlWithParams(baseUrl: string, params: KeyValuePair[]): str
       const u = new URL(baseUrl);
       u.search = '';
       url = u.toString();
-    } catch {}
+    } catch {
+      // Relative or incomplete URLs are left untouched.
+    }
     const qs = enabled.map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join('&');
     return url + (url.includes('?') ? '&' : '?') + qs;
   } catch {

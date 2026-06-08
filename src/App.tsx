@@ -8,6 +8,7 @@ import RequestPanel from './components/RequestPanel';
 import ResponsePanel from './components/ResponsePanel';
 import WsPanel from './components/WsPanel';
 import HistoryPanel from './components/HistoryPanel';
+import './App.css';
 
 // SVG Icons
 const IconHistory = () => (
@@ -22,6 +23,16 @@ const IconSend = () => (
     <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
   </svg>
 );
+
+const METHOD_COLORS: Record<string, string> = {
+  GET: '#38bdf8',
+  POST: '#34d399',
+  PUT: '#f59e0b',
+  DELETE: '#fb7185',
+  PATCH: '#2dd4bf',
+  HEAD: '#94a3b8',
+  OPTIONS: '#60a5fa',
+};
 
 const DEFAULT_HEADERS: KeyValuePair[] = [
   createKvPair('Content-Type', 'application/json'),
@@ -48,6 +59,7 @@ function App() {
   const [wsUrl, setWsUrl] = useState('');
   const [wsMessages, setWsMessages] = useState<WsMessage[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
+  const [wsProtocolInfo, setWsProtocolInfo] = useState('');
   const wsRef = useRef<WebSocket | null>(null);
 
   // History
@@ -200,6 +212,7 @@ function App() {
     if (wsRef.current) {
       wsRef.current.close();
     }
+    setWsProtocolInfo('');
 
     const addMsg = (type: WsMessage['type'], data: string, size?: number) => {
       setWsMessages(prev => [...prev, {
@@ -213,6 +226,7 @@ function App() {
 
       ws.onopen = () => {
         setWsConnected(true);
+        setWsProtocolInfo(ws.protocol || 'default protocol');
         addMsg('info', `Connected to ${wsUrl}`);
       };
 
@@ -227,6 +241,7 @@ function App() {
 
       ws.onclose = (event) => {
         setWsConnected(false);
+        setWsProtocolInfo('');
         addMsg('info', `Connection closed (code: ${event.code}, reason: ${event.reason || 'N/A'})`);
         wsRef.current = null;
       };
@@ -241,6 +256,7 @@ function App() {
       wsRef.current = null;
     }
     setWsConnected(false);
+    setWsProtocolInfo('');
   }, []);
 
   const sendWsMessage = useCallback((msg: string) => {
@@ -296,8 +312,11 @@ function App() {
       const container = document.querySelector('.main-content');
       if (container) {
         const rect = container.getBoundingClientRect();
-        const pos = ((e.clientY - rect.top) / rect.height) * 100;
-        setSplitPos(Math.max(20, Math.min(80, pos)));
+        const stacked = window.matchMedia('(max-width: 960px)').matches;
+        const pos = stacked
+          ? ((e.clientY - rect.top) / rect.height) * 100
+          : ((e.clientX - rect.left) / rect.width) * 100;
+        setSplitPos(Math.max(28, Math.min(72, pos)));
       }
     };
     const handleMouseUp = () => {
@@ -310,6 +329,13 @@ function App() {
   }, []);
 
   const hasBody = !['GET', 'HEAD'].includes(method);
+  const responseSummary = loading
+    ? 'Running'
+    : error
+      ? 'Failed'
+      : response
+        ? `${response.status} ${response.statusText}`
+        : 'Ready';
 
   return (
     <div className="app">
@@ -323,14 +349,16 @@ function App() {
             <path d="M2 12l10 5 10-5" stroke="url(#g1)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
             <defs>
               <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24">
-                <stop stopColor="#6b7fff"/>
-                <stop offset="1" stopColor="#22d3ee"/>
+                <stop stopColor="#2dd4bf"/>
+                <stop offset="1" stopColor="#f59e0b"/>
               </linearGradient>
             </defs>
           </svg>
         </span>
-        <span className="logo-text">WebDog</span>
-        <span className="logo-subtitle">API Tester</span>
+          <span className="logo-copy">
+            <span className="logo-text">WebDog</span>
+            <span className="logo-subtitle">API workspace</span>
+          </span>
         </div>
         <div className="header-actions">
           <div className="protocol-toggle">
@@ -378,18 +406,19 @@ function App() {
             <>
               {/* Request Section */}
               <div className="request-section" style={{ flex: splitPos }}>
+                <div className="section-chrome">
+                  <div>
+                    <span className="section-eyebrow">Request</span>
+                    <strong>{method} endpoint</strong>
+                  </div>
+                  <span className="section-note">{hasBody ? `${bodyType.toUpperCase()} body` : 'No body'}</span>
+                </div>
                 <div className="url-bar">
                   <select
                     className="method-select"
                     value={method}
                     onChange={e => setMethod(e.target.value as HttpMethod)}
-                    style={{ color: (() => {
-                      const colors: Record<string, string> = {
-                        GET: '#60a5fa', POST: '#4ade80', PUT: '#fbbf24',
-                        DELETE: '#f87171', PATCH: '#22d3ee', HEAD: '#94a3b8', OPTIONS: '#3b82f6',
-                      };
-                      return colors[method] || '#999';
-                    })() }}
+                    style={{ color: METHOD_COLORS[method] || '#94a3b8' }}
                   >
                     {['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].map(m => (
                       <option key={m} value={m}>{m}</option>
@@ -432,11 +461,27 @@ function App() {
 
               {/* Response Section */}
               <div className="response-section" style={{ flex: 100 - splitPos }}>
+                <div className="section-chrome">
+                  <div>
+                    <span className="section-eyebrow">Response</span>
+                    <strong>{responseSummary}</strong>
+                  </div>
+                  {response && <span className="section-note">{Object.keys(response.headers).length} headers</span>}
+                </div>
                 <ResponsePanel response={response} loading={loading} error={error} />
               </div>
             </>
           ) : (
             <div className="ws-container">
+              <div className="section-chrome">
+                <div>
+                  <span className="section-eyebrow">WebSocket</span>
+                  <strong>{wsConnected ? 'Live session' : 'New session'}</strong>
+                </div>
+                <span className={`section-note ${wsConnected ? 'is-live' : ''}`}>
+                  {wsConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
               <div className="ws-url-bar">
                 <select
                   className="method-select ws-method"
@@ -445,7 +490,7 @@ function App() {
                     const newScheme = e.target.value;
                     setWsUrl(wsUrl.replace(/^wss?/, newScheme));
                   }}
-                  style={{ color: '#8b5cf6' }}
+                  style={{ color: '#2dd4bf' }}
                 >
                   <option value="ws">WS</option>
                   <option value="wss">WSS</option>
@@ -463,7 +508,6 @@ function App() {
                     className="btn btn-send-inline"
                     onClick={connectWs}
                     disabled={!wsUrl.trim()}
-                    style={{ borderRadius: '0 8px 8px 0' }}
                   >
                     Connect
                   </button>
@@ -475,11 +519,11 @@ function App() {
               </div>
               <div className="ws-status-bar">
                 <span className={`ws-status ${wsConnected ? 'connected' : 'disconnected'}`}>
-                  {wsConnected ? '● Connected' : '○ Disconnected'}
+                  {wsConnected ? 'Connected' : 'Disconnected'}
                 </span>
-                {wsConnected && wsRef.current && (
+                {wsConnected && wsProtocolInfo && (
                   <span className="ws-protocol-info">
-                    {wsRef.current.protocol || 'default protocol'}
+                    {wsProtocolInfo}
                   </span>
                 )}
               </div>

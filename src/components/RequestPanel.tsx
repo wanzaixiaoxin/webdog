@@ -19,7 +19,7 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
   { value: 'json', label: 'JSON' },
   { value: 'text', label: 'Text' },
   { value: 'formdata', label: 'Form Data' },
-  { value: 'urlencoded', label: 'x-www-form-urlencoded' },
+  { value: 'urlencoded', label: 'URL Encoded' },
   { value: 'raw', label: 'Raw' },
 ];
 
@@ -86,7 +86,7 @@ export default function RequestPanel({
                 </button>
               ))}
             </div>
-            {hasBody && bodyType !== 'none' && (
+            {hasBody && bodyType !== 'none' ? (
               <textarea
                 className="body-editor"
                 value={body}
@@ -94,6 +94,10 @@ export default function RequestPanel({
                 placeholder={bodyType === 'json' ? '{\n  "key": "value"\n}' : 'Enter body content...'}
                 spellCheck={false}
               />
+            ) : (
+              <div className="body-empty">
+                {hasBody ? 'No request body will be sent.' : 'This method does not send a request body.'}
+              </div>
             )}
           </div>
         )}

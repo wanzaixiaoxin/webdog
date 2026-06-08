@@ -24,6 +24,12 @@ interface Props {
 export default function WsPanel({ messages, onSend, onClear, connected }: Props) {
   const [input, setInput] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
+  const labels: Record<WsMessage['type'], string> = {
+    sent: 'Sent',
+    received: 'Received',
+    error: 'Error',
+    info: 'Info',
+  };
 
   useEffect(() => {
     if (logRef.current) {
@@ -64,7 +70,7 @@ export default function WsPanel({ messages, onSend, onClear, connected }: Props)
           <div key={msg.id} className={`ws-msg ws-msg-${msg.type}`}>
             <div className="ws-msg-header">
               <span className={`ws-msg-badge ws-badge-${msg.type}`}>
-                {msg.type === 'sent' ? '↑ Sent' : msg.type === 'received' ? '↓ Received' : msg.type === 'error' ? '⚠ Error' : 'ℹ Info'}
+                {labels[msg.type]}
               </span>
               <span className="ws-msg-time">
                 {msg.timestamp.toLocaleTimeString()}
