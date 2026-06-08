@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type {
   HttpMethod, Protocol, RequestConfig, ResponseData,
   WsMessage, HistoryItem, KeyValuePair, BodyType
@@ -24,6 +24,22 @@ const IconSend = () => (
   </svg>
 );
 
+const IconSun = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" /><path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" /><path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+  </svg>
+);
+
+const IconMoon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.99 12.66A9 9 0 1 1 11.34 3a7 7 0 0 0 9.65 9.65Z" />
+  </svg>
+);
+
 const METHOD_COLORS: Record<string, string> = {
   GET: '#38bdf8',
   POST: '#34d399',
@@ -35,8 +51,23 @@ const METHOD_COLORS: Record<string, string> = {
 };
 
 const DEFAULT_HEADERS: KeyValuePair[] = [];
+type Theme = 'light' | 'dark';
+const THEME_STORAGE_KEY = 'webdog-theme';
+
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'light';
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return stored === 'dark' || stored === 'light' ? stored : 'light';
+};
 
 function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
   // Protocol mode
   const [protocol, setProtocol] = useState<Protocol>('http');
 
@@ -360,9 +391,10 @@ function App() {
       : response
         ? `${response.status} ${response.statusText}`
         : 'Ready';
+  const nextTheme = theme === 'light' ? 'dark' : 'light';
 
   return (
-    <div className="app">
+    <div className="app" data-theme={theme}>
       {/* Header */}
       <header className="app-header">
         <div className="app-logo">
@@ -399,6 +431,14 @@ function App() {
               WebSocket
             </button>
           </div>
+          <button
+            className="btn btn-icon"
+            onClick={() => setTheme(nextTheme)}
+            title={`Switch to ${nextTheme} theme`}
+            aria-label={`Switch to ${nextTheme} theme`}
+          >
+            {theme === 'light' ? <IconMoon /> : <IconSun />}
+          </button>
           <button
             className={`btn btn-icon ${showHistory ? 'active' : ''}`}
             onClick={() => setShowHistory(!showHistory)}
