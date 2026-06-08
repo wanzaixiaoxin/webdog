@@ -41,6 +41,18 @@ export function normalizeWsUrl(input: string): string {
   return `ws://${url.replace(/^\/+/, '')}`;
 }
 
+export function getHttpFetchUrl(targetUrl: string): string {
+  try {
+    const target = new URL(targetUrl, window.location.href);
+    if (['http:', 'https:'].includes(target.protocol) && target.origin !== window.location.origin) {
+      return `/__webdog_proxy?url=${encodeURIComponent(target.toString())}`;
+    }
+  } catch {
+    return targetUrl;
+  }
+  return targetUrl;
+}
+
 export function buildUrlWithParams(baseUrl: string, params: KeyValuePair[]): string {
   try {
     const enabled = params.filter(p => p.enabled && p.key.trim());

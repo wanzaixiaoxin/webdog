@@ -3,7 +3,7 @@ import type {
   HttpMethod, Protocol, RequestConfig, ResponseData,
   WsMessage, HistoryItem, KeyValuePair, BodyType
 } from './types';
-import { createKvPair, buildUrlWithParams, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
+import { buildUrlWithParams, getHttpFetchUrl, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
 import RequestPanel from './components/RequestPanel';
 import ResponsePanel from './components/ResponsePanel';
 import WsPanel from './components/WsPanel';
@@ -34,9 +34,7 @@ const METHOD_COLORS: Record<string, string> = {
   OPTIONS: '#60a5fa',
 };
 
-const DEFAULT_HEADERS: KeyValuePair[] = [
-  createKvPair('Content-Type', 'application/json'),
-];
+const DEFAULT_HEADERS: KeyValuePair[] = [];
 
 function App() {
   // Protocol mode
@@ -108,7 +106,15 @@ function App() {
     }
 
     const fullUrl = buildUrlWithParams(normalizedUrl, params);
-    const headerRecord = kvPairsToRecord(headers);
+    let headerRecord = kvPairsToRecord(headers);
+    const willSendBody = !['GET', 'HEAD'].includes(method) && bodyType !== 'none' && Boolean(body.trim());
+
+    if (!willSendBody) {
+      const headersWithoutBodyType = { ...headerRecord };
+      delete headersWithoutBodyType['Content-Type'];
+      delete headersWithoutBodyType['content-type'];
+      headerRecord = headersWithoutBodyType;
+    }
 
     const config: RequestConfig = {
       method, url: normalizedUrl, protocol, params, headers, bodyType, body,
@@ -123,7 +129,7 @@ function App() {
       };
 
       // Add body for methods that support it
-      if (!['GET', 'HEAD'].includes(method) && bodyType !== 'none' && body.trim()) {
+      if (willSendBody) {
         if (bodyType === 'json') {
           fetchOptions.body = body;
           if (!headerRecord['Content-Type']) {
@@ -158,7 +164,7 @@ function App() {
         }
       }
 
-      const res = await fetch(fullUrl, fetchOptions);
+      const res = await fetch(getHttpFetchUrl(fullUrl), fetchOptions);
       const endTime = performance.now();
       const time = Math.round(endTime - startTime);
 
@@ -195,7 +201,16 @@ function App() {
       const endTime = performance.now();
       const time = Math.round(endTime - startTime);
       const errorMsg = err instanceof Error ? err.message : String(err);
-      setError(errorMsg);
+      const normalizedMessage = errorMsg === 'Failed to fetch'
+        ? [
+          'Failed to fetch',
+          '',
+          'The browser could not complete this request. Check that the backend is running, the URL is correct, and the backend allows browser requests (CORS).',
+          '',
+          'For cross-origin APIs, the backend needs Access-Control-Allow-Origin and may need to handle OPTIONS preflight requests.',
+        ].join('\n')
+        : errorMsg;
+      setError(normalizedMessage);
 
       const historyItem: HistoryItem = {
         id: genId(),
