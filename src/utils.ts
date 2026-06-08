@@ -20,18 +20,32 @@ export function parseUrlParams(url: string): KeyValuePair[] {
   }
 }
 
+export function normalizeHttpUrl(input: string): string {
+  const url = input.trim();
+  if (!url) return '';
+  if (/^[a-z][a-z\d+\-.]*:\/\//i.test(url)) return url;
+  if (url.startsWith('//')) return `${window.location.protocol}${url}`;
+  if (url.startsWith('/')) return url;
+  return `http://${url}`;
+}
+
+export function normalizeWsUrl(input: string): string {
+  const url = input.trim();
+  if (!url) return '';
+  if (/^wss?:\/\//i.test(url)) return url;
+  if (/^https?:\/\//i.test(url)) return url.replace(/^http/i, 'ws');
+  if (url.startsWith('//')) {
+    const scheme = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${scheme}${url}`;
+  }
+  return `ws://${url.replace(/^\/+/, '')}`;
+}
+
 export function buildUrlWithParams(baseUrl: string, params: KeyValuePair[]): string {
   try {
     const enabled = params.filter(p => p.enabled && p.key.trim());
     if (!enabled.length) {
-      // strip existing query params if none enabled
-      try {
-        const u = new URL(baseUrl);
-        u.search = '';
-        return u.toString();
-      } catch {
-        return baseUrl;
-      }
+      return baseUrl;
     }
     let url = baseUrl;
     // strip existing params

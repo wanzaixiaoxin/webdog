@@ -3,7 +3,7 @@ import type {
   HttpMethod, Protocol, RequestConfig, ResponseData,
   WsMessage, HistoryItem, KeyValuePair, BodyType
 } from './types';
-import { createKvPair, buildUrlWithParams, kvPairsToRecord, genId } from './utils';
+import { createKvPair, buildUrlWithParams, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
 import RequestPanel from './components/RequestPanel';
 import ResponsePanel from './components/ResponsePanel';
 import WsPanel from './components/WsPanel';
@@ -89,8 +89,8 @@ function App() {
 
   const handleProtocolSwitch = (p: Protocol) => {
     setProtocol(p);
-    if (p === 'ws' && url && !url.startsWith('ws')) {
-      setWsUrl(url.replace(/^https?/, 'ws'));
+    if (p === 'ws' && url) {
+      setWsUrl(normalizeWsUrl(url));
     }
   };
 
@@ -102,11 +102,16 @@ function App() {
     setError(null);
     setResponse(null);
 
-    const fullUrl = buildUrlWithParams(url, params);
+    const normalizedUrl = normalizeHttpUrl(url);
+    if (normalizedUrl !== url.trim()) {
+      setUrl(normalizedUrl);
+    }
+
+    const fullUrl = buildUrlWithParams(normalizedUrl, params);
     const headerRecord = kvPairsToRecord(headers);
 
     const config: RequestConfig = {
-      method, url, protocol, params, headers, bodyType, body,
+      method, url: normalizedUrl, protocol, params, headers, bodyType, body,
     };
 
     const startTime = performance.now();
@@ -213,6 +218,10 @@ function App() {
       wsRef.current.close();
     }
     setWsProtocolInfo('');
+    const normalizedUrl = normalizeWsUrl(wsUrl);
+    if (normalizedUrl !== wsUrl.trim()) {
+      setWsUrl(normalizedUrl);
+    }
 
     const addMsg = (type: WsMessage['type'], data: string, size?: number) => {
       setWsMessages(prev => [...prev, {
@@ -221,13 +230,13 @@ function App() {
     };
 
     try {
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(normalizedUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         setWsConnected(true);
         setWsProtocolInfo(ws.protocol || 'default protocol');
-        addMsg('info', `Connected to ${wsUrl}`);
+        addMsg('info', `Connected to ${normalizedUrl}`);
       };
 
       ws.onmessage = (event) => {
