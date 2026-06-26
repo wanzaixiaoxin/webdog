@@ -1,5 +1,0 @@
-E:\learn\github\webdog\webdog-wpf\WebDog\obj\Debug\net9.0-windows\Themes\DarkTheme.baml
-E:\learn\github\webdog\webdog-wpf\WebDog\obj\Debug\net9.0-windows\App.g.cs
-E:\learn\github\webdog\webdog-wpf\WebDog\obj\Debug\net9.0-windows\GeneratedInternalTypeHelper.g.cs
-E:\learn\github\webdog\webdog-wpf\WebDog\obj\Debug\net9.0-windows\WebDog_MarkupCompile.cache
-E:\learn\github\webdog\webdog-wpf\WebDog\obj\Debug\net9.0-windows\WebDog_MarkupCompile.lref
