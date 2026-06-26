@@ -3,6 +3,16 @@ import type { KeyValuePair } from './types';
 let _id = 0;
 export const genId = () => String(++_id);
 
+/**
+ * Whether the app is running inside a Tauri webview (i.e. the packaged desktop
+ * app). In that environment there is no Vite dev server, so the
+ * `/__webdog_proxy` middleware is unavailable; HTTP requests are issued from
+ * Rust via the Tauri http plugin instead (see App.tsx).
+ */
+export function isTauri(): boolean {
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+}
+
 export function createKvPair(key = '', value = '', enabled = true): KeyValuePair {
   return { key, value, enabled, id: genId() };
 }
@@ -42,6 +52,10 @@ export function normalizeWsUrl(input: string): string {
 }
 
 export function getHttpFetchUrl(targetUrl: string): string {
+  // In the Tauri desktop app there is no dev-server proxy to fall back on;
+  // requests are issued through the Tauri http plugin, so the URL must be
+  // passed through unchanged.
+  if (isTauri()) return targetUrl;
   try {
     const target = new URL(targetUrl, window.location.href);
     if (['http:', 'https:'].includes(target.protocol) && target.origin !== window.location.origin) {

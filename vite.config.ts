@@ -102,6 +102,9 @@ function webdogProxyPlugin(): Plugin {
 }
 
 // https://vite.dev/config/
+// base: './' makes the production build use relative asset paths so the app
+// loads correctly inside the Tauri webview (served from tauri.localhost).
 export default defineConfig({
   plugins: [react(), webdogProxyPlugin()],
+  base: './',
 })

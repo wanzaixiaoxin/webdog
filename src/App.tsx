@@ -3,7 +3,7 @@ import type {
   HttpMethod, Protocol, RequestConfig, ResponseData,
   WsMessage, HistoryItem, KeyValuePair, BodyType
 } from './types';
-import { buildUrlWithParams, getHttpFetchUrl, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
+import { buildUrlWithParams, getHttpFetchUrl, isTauri, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
 import RequestPanel from './components/RequestPanel';
 import ResponsePanel from './components/ResponsePanel';
 import WsPanel from './components/WsPanel';
@@ -89,7 +89,13 @@ function App() {
   const [wsMessages, setWsMessages] = useState<WsMessage[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
   const [wsProtocolInfo, setWsProtocolInfo] = useState('');
-  const wsRef = useRef<WebSocket | null>(null);
+  // Holds either a browser-native WebSocket (dev mode, http page) or a Tauri
+  // websocket plugin Connection (packaged app, https page where ws:// is
+  // blocked as mixed content). See connectWs/disconnectWs/sendWsMessage.
+  type WsHandle =
+    | { kind: 'native'; ws: WebSocket }
+    | { kind: 'tauri'; conn: import('@tauri-apps/plugin-websocket').default; unlisten: () => void };
+  const wsRef = useRef<WsHandle | null>(null);
 
   // History
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -195,7 +201,14 @@ function App() {
         }
       }
 
-      const res = await fetch(getHttpFetchUrl(fullUrl), fetchOptions);
+      // In the Tauri desktop app there is no dev-server CORS proxy, so issue
+      // the request through the Tauri http plugin (Rust-side fetch). In the
+      // browser/dev environment the proxy path returned by getHttpFetchUrl is
+      // served by the Vite middleware.
+      const doFetch = isTauri()
+        ? (await import('@tauri-apps/plugin-http')).fetch
+        : window.fetch;
+      const res = await doFetch(getHttpFetchUrl(fullUrl), fetchOptions as any);
       const endTime = performance.now();
       const time = Math.round(endTime - startTime);
 
@@ -258,10 +271,20 @@ function App() {
   }, [url, params, headers, method, bodyType, body, protocol]);
 
   // === WebSocket ===
+  //
+  // Environment split:
+  //  - dev (http page): use the browser-native WebSocket (works fine).
+  //  - packaged Tauri app (https://tauri.localhost page): the browser blocks
+  //    ws:// as mixed content (-> close code 1006), so route the connection
+  //    through the Tauri websocket plugin, which connects from the Rust side.
   const connectWs = useCallback(() => {
     if (!wsUrl.trim()) return;
-    if (wsRef.current) {
-      wsRef.current.close();
+    // Tear down any existing connection first.
+    const existing = wsRef.current;
+    if (existing) {
+      if (existing.kind === 'native') existing.ws.close();
+      else { existing.unlisten(); void existing.conn.disconnect(); }
+      wsRef.current = null;
     }
     setWsProtocolInfo('');
     const normalizedUrl = normalizeWsUrl(wsUrl);
@@ -275,9 +298,50 @@ function App() {
       }]);
     };
 
+    if (isTauri()) {
+      // Plugin path: connect from Rust, bypassing mixed-content blocking.
+      // connect() resolves once the handshake completes (i.e. "open").
+      void import('@tauri-apps/plugin-websocket').then((module) => {
+        const WS = module.default;
+        WS.connect(normalizedUrl)
+          .then((conn) => {
+            // addListener returns an unlisten fn synchronously. Register it
+            // right after connect so we don't miss early messages.
+            const unlisten = conn.addListener((msg) => {
+              const t = msg.type;
+              if (t === 'Text') {
+                const data = msg.data;
+                addMsg('received', data, new Blob([data]).size);
+              } else if (t === 'Binary') {
+                addMsg('received', '[binary]');
+              } else if (t === 'Close') {
+                setWsConnected(false);
+                setWsProtocolInfo('');
+                const frame = msg.data;
+                const detail = frame ? ` (code: ${frame.code}, reason: ${frame.reason || 'N/A'})` : '';
+                addMsg('info', `Connection closed${detail}`);
+                wsRef.current = null;
+              }
+              // Ping/Pong are keep-alives, ignore them.
+            });
+            wsRef.current = { kind: 'tauri', conn, unlisten };
+            setWsConnected(true);
+            setWsProtocolInfo('default protocol');
+            addMsg('info', `Connected to ${normalizedUrl}`);
+          })
+          .catch((err) => {
+            const msg = err instanceof Error ? err.message : String(err);
+            setError(msg);
+            addMsg('error', msg);
+          });
+      });
+      return;
+    }
+
+    // Native path (dev / browser).
     try {
       const ws = new WebSocket(normalizedUrl);
-      wsRef.current = ws;
+      wsRef.current = { kind: 'native', ws };
 
       ws.onopen = () => {
         setWsConnected(true);
@@ -306,8 +370,14 @@ function App() {
   }, [wsUrl]);
 
   const disconnectWs = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.close();
+    const handle = wsRef.current;
+    if (handle) {
+      if (handle.kind === 'native') {
+        handle.ws.close();
+      } else {
+        handle.unlisten();
+        void handle.conn.disconnect();
+      }
       wsRef.current = null;
     }
     setWsConnected(false);
@@ -315,8 +385,17 @@ function App() {
   }, []);
 
   const sendWsMessage = useCallback((msg: string) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(msg);
+    const handle = wsRef.current;
+    if (!handle) return;
+    if (handle.kind === 'native') {
+      if (handle.ws.readyState === WebSocket.OPEN) {
+        handle.ws.send(msg);
+        setWsMessages(prev => [...prev, {
+          id: genId(), type: 'sent', data: msg, timestamp: new Date(), size: new Blob([msg]).size,
+        }]);
+      }
+    } else {
+      void handle.conn.send(msg);
       setWsMessages(prev => [...prev, {
         id: genId(), type: 'sent', data: msg, timestamp: new Date(), size: new Blob([msg]).size,
       }]);

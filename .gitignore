@@ -13,6 +13,7 @@ node_modules
 # Build output
 dist
 dist-ssr
+dist-portable
 *.local
 
 # Editor directories and files
@@ -32,3 +33,20 @@ screenshot*.png
 # OS files
 Thumbs.db
 Desktop.ini
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
+# Dev server uploads
+.uploads
+
+# Tauri build output (Rust compiler artifacts, generated code)
+src-tauri/target
+src-tauri/gen
+
+# Embedded WebView2 Fixed Runtime (~180MB, downloaded separately)
+src-tauri/webview2
+
+# Generated platform-specific icons (kept only: 32x32.png, 128x128.png, 128x128@2x.png, icon.ico, icon.png)
+src-tauri/icons/android/
+src-tauri/icons/ios/
