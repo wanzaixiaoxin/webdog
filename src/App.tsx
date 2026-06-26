@@ -12,7 +12,7 @@ import './App.css';
 
 // SVG Icons
 const IconHistory = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
     <path d="M12 7v5l4 2"/>
   </svg>
@@ -25,7 +25,7 @@ const IconSend = () => (
 );
 
 const IconSun = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="4" />
     <path d="M12 2v2" /><path d="M12 20v2" />
     <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
@@ -35,8 +35,14 @@ const IconSun = () => (
 );
 
 const IconMoon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20.99 12.66A9 9 0 1 1 11.34 3a7 7 0 0 0 9.65 9.65Z" />
+  </svg>
+);
+
+const IconSidebar = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>
   </svg>
 );
 
@@ -89,9 +95,6 @@ function App() {
   const [wsMessages, setWsMessages] = useState<WsMessage[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
   const [wsProtocolInfo, setWsProtocolInfo] = useState('');
-  // Holds either a browser-native WebSocket (dev mode, http page) or a Tauri
-  // websocket plugin Connection (packaged app, https page where ws:// is
-  // blocked as mixed content). See connectWs/disconnectWs/sendWsMessage.
   type WsHandle =
     | { kind: 'native'; ws: WebSocket }
     | { kind: 'tauri'; conn: import('@tauri-apps/plugin-websocket').default; unlisten: () => void };
@@ -99,7 +102,7 @@ function App() {
 
   // History
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Splitter
   const [splitPos, setSplitPos] = useState(45);
@@ -165,7 +168,6 @@ function App() {
         headers: headerRecord,
       };
 
-      // Add body for methods that support it
       if (willSendBody) {
         if (bodyType === 'json') {
           fetchOptions.body = body;
@@ -178,7 +180,6 @@ function App() {
             fetchOptions.headers = { ...headerRecord, 'Content-Type': 'application/x-www-form-urlencoded' };
           }
         } else if (bodyType === 'formdata') {
-          // Parse key=value pairs and create FormData
           const fd = new FormData();
           try {
             const obj = JSON.parse(body);
@@ -192,7 +193,6 @@ function App() {
             });
           }
           fetchOptions.body = fd;
-          // Remove Content-Type to let browser set multipart boundary
           const h = { ...headerRecord };
           delete h['Content-Type'];
           fetchOptions.headers = h;
@@ -201,10 +201,6 @@ function App() {
         }
       }
 
-      // In the Tauri desktop app there is no dev-server CORS proxy, so issue
-      // the request through the Tauri http plugin (Rust-side fetch). In the
-      // browser/dev environment the proxy path returned by getHttpFetchUrl is
-      // served by the Vite middleware.
       const doFetch = isTauri()
         ? (await import('@tauri-apps/plugin-http')).fetch
         : window.fetch;
@@ -229,7 +225,6 @@ function App() {
 
       setResponse(responseData);
 
-      // Save to history
       const historyItem: HistoryItem = {
         id: genId(),
         method,
@@ -271,15 +266,8 @@ function App() {
   }, [url, params, headers, method, bodyType, body, protocol]);
 
   // === WebSocket ===
-  //
-  // Environment split:
-  //  - dev (http page): use the browser-native WebSocket (works fine).
-  //  - packaged Tauri app (https://tauri.localhost page): the browser blocks
-  //    ws:// as mixed content (-> close code 1006), so route the connection
-  //    through the Tauri websocket plugin, which connects from the Rust side.
   const connectWs = useCallback(() => {
     if (!wsUrl.trim()) return;
-    // Tear down any existing connection first.
     const existing = wsRef.current;
     if (existing) {
       if (existing.kind === 'native') existing.ws.close();
@@ -299,14 +287,10 @@ function App() {
     };
 
     if (isTauri()) {
-      // Plugin path: connect from Rust, bypassing mixed-content blocking.
-      // connect() resolves once the handshake completes (i.e. "open").
       void import('@tauri-apps/plugin-websocket').then((module) => {
         const WS = module.default;
         WS.connect(normalizedUrl)
           .then((conn) => {
-            // addListener returns an unlisten fn synchronously. Register it
-            // right after connect so we don't miss early messages.
             const unlisten = conn.addListener((msg) => {
               const t = msg.type;
               if (t === 'Text') {
@@ -322,7 +306,6 @@ function App() {
                 addMsg('info', `Connection closed${detail}`);
                 wsRef.current = null;
               }
-              // Ping/Pong are keep-alives, ignore them.
             });
             wsRef.current = { kind: 'tauri', conn, unlisten };
             setWsConnected(true);
@@ -338,7 +321,6 @@ function App() {
       return;
     }
 
-    // Native path (dev / browser).
     try {
       const ws = new WebSocket(normalizedUrl);
       wsRef.current = { kind: 'native', ws };
@@ -427,7 +409,7 @@ function App() {
     const handleMouseMove = (e: MouseEvent) => {
       if (!sidebarDragging.current) return;
       const delta = e.clientX - startX;
-      setSidebarWidth(Math.max(180, Math.min(500, startWidth + delta)));
+      setSidebarWidth(Math.max(200, Math.min(480, startWidth + delta)));
     };
     const handleMouseUp = () => {
       sidebarDragging.current = false;
@@ -462,40 +444,29 @@ function App() {
     document.addEventListener('mouseup', handleMouseUp);
   }, []);
 
-  const hasBody = !['GET', 'HEAD'].includes(method);
-  const responseSummary = loading
-    ? 'Running'
-    : error
-      ? 'Failed'
-      : response
-        ? `${response.status} ${response.statusText}`
-        : 'Ready';
   const nextTheme = theme === 'light' ? 'dark' : 'light';
 
   return (
     <div className="app" data-theme={theme}>
-      {/* Header */}
+      {/* Header - compact toolbar */}
       <header className="app-header">
-        <div className="app-logo">
-          <span className="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#g1)" opacity="0.9"/>
-            <path d="M2 17l10 5 10-5" stroke="url(#g1)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 12l10 5 10-5" stroke="url(#g1)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <defs>
-              <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24">
-                <stop stopColor="#2dd4bf"/>
-                <stop offset="1" stopColor="#f59e0b"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-          <span className="logo-copy">
+        <div className="header-left">
+          <div className="app-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#g1)" opacity="0.9"/>
+              <path d="M2 17l10 5 10-5" stroke="url(#g1)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12l10 5 10-5" stroke="url(#g1)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24">
+                  <stop stopColor="#2dd4bf"/>
+                  <stop offset="1" stopColor="#f59e0b"/>
+                </linearGradient>
+              </defs>
+            </svg>
             <span className="logo-text">WebDog</span>
-            <span className="logo-subtitle">API workspace</span>
-          </span>
-        </div>
-        <div className="header-actions">
+          </div>
+
+          {/* Protocol toggle - integrated into header left */}
           <div className="protocol-toggle">
             <button
               className={`protocol-btn ${protocol === 'http' ? 'active' : ''}`}
@@ -507,23 +478,26 @@ function App() {
               className={`protocol-btn ${protocol === 'ws' ? 'active' : ''}`}
               onClick={() => handleProtocolSwitch('ws')}
             >
-              WebSocket
+              WS
             </button>
           </div>
+        </div>
+
+        <div className="header-right">
           <button
-            className="btn btn-icon"
+            className="btn btn-icon-sm"
+            onClick={() => setShowHistory(!showHistory)}
+            title="Toggle history panel"
+          >
+            <IconSidebar />
+          </button>
+          <button
+            className="btn btn-icon-sm"
             onClick={() => setTheme(nextTheme)}
             title={`Switch to ${nextTheme} theme`}
             aria-label={`Switch to ${nextTheme} theme`}
           >
             {theme === 'light' ? <IconMoon /> : <IconSun />}
-          </button>
-          <button
-            className={`btn btn-icon ${showHistory ? 'active' : ''}`}
-            onClick={() => setShowHistory(!showHistory)}
-            title="Toggle history"
-          >
-            <IconHistory />
           </button>
         </div>
       </header>
@@ -547,15 +521,8 @@ function App() {
         <div className="main-content">
           {protocol === 'http' ? (
             <>
-              {/* Request Section */}
-              <div className="request-section" style={{ flex: splitPos }}>
-                <div className="section-chrome">
-                  <div>
-                    <span className="section-eyebrow">Request</span>
-                    <strong>{method} endpoint</strong>
-                  </div>
-                  <span className="section-note">{hasBody ? `${bodyType.toUpperCase()} body` : 'No body'}</span>
-                </div>
+              {/* URL Bar - extracted to top level for prominence */}
+              <div className="url-bar-dock">
                 <div className="url-bar">
                   <select
                     className="method-select"
@@ -572,104 +539,101 @@ function App() {
                     className="url-input"
                     value={url}
                     onChange={e => handleUrlChange(e.target.value)}
-                    placeholder="Enter request URL"
+                    onKeyDown={e => { if (e.key === 'Enter' && !loading) sendRequest(); }}
+                    placeholder="Enter request URL..."
                     spellCheck={false}
                   />
                   <button
-                    className="btn btn-send-inline"
+                    className="btn btn-send"
                     onClick={sendRequest}
                     disabled={loading || !url.trim()}
                   >
                     <IconSend />
-                    {loading ? 'Sending...' : 'Send'}
+                    {loading ? 'Sending' : 'Send'}
                   </button>
                 </div>
-                <RequestPanel
-                  params={params}
-                  headers={headers}
-                  bodyType={bodyType}
-                  body={body}
-                  onParamsChange={setParams}
-                  onHeadersChange={setHeaders}
-                  onBodyTypeChange={setBodyType}
-                  onBodyChange={setBody}
-                  hasBody={hasBody}
-                />
               </div>
 
-              {/* Splitter */}
-              <div className="splitter" onMouseDown={handleMouseDown}>
-                <div className="splitter-line"></div>
-              </div>
-
-              {/* Response Section */}
-              <div className="response-section" style={{ flex: 100 - splitPos }}>
-                <div className="section-chrome">
-                  <div>
-                    <span className="section-eyebrow">Response</span>
-                    <strong>{responseSummary}</strong>
-                  </div>
-                  {response && <span className="section-note">{Object.keys(response.headers).length} headers</span>}
+              <div className="panels-container">
+                {/* Request Panel */}
+                <div className="request-section" style={{ flex: splitPos }}>
+                  <RequestPanel
+                    params={params}
+                    headers={headers}
+                    bodyType={bodyType}
+                    body={body}
+                    onParamsChange={setParams}
+                    onHeadersChange={setHeaders}
+                    onBodyTypeChange={setBodyType}
+                    onBodyChange={setBody}
+                    hasBody={!['GET', 'HEAD'].includes(method)}
+                  />
                 </div>
-                <ResponsePanel response={response} loading={loading} error={error} />
+
+                {/* Splitter */}
+                <div className="splitter" onMouseDown={handleMouseDown}>
+                  <div className="splitter-handle"></div>
+                </div>
+
+                {/* Response Panel */}
+                <div className="response-section" style={{ flex: 100 - splitPos }}>
+                  <ResponsePanel response={response} loading={loading} error={error} />
+                </div>
               </div>
             </>
           ) : (
             <div className="ws-container">
-              <div className="section-chrome">
-                <div>
-                  <span className="section-eyebrow">WebSocket</span>
-                  <strong>{wsConnected ? 'Live session' : 'New session'}</strong>
-                </div>
-                <span className={`section-note ${wsConnected ? 'is-live' : ''}`}>
-                  {wsConnected ? 'Connected' : 'Disconnected'}
-                </span>
-              </div>
-              <div className="ws-url-bar">
-                <select
-                  className="method-select ws-method"
-                  value={wsUrl.startsWith('wss://') ? 'wss' : 'ws'}
-                  onChange={e => {
-                    const newScheme = e.target.value;
-                    setWsUrl(wsUrl.replace(/^wss?/, newScheme));
-                  }}
-                  style={{ color: '#2dd4bf' }}
-                >
-                  <option value="ws">WS</option>
-                  <option value="wss">WSS</option>
-                </select>
-                <input
-                  type="text"
-                  className="url-input"
-                  value={wsUrl}
-                  onChange={e => setWsUrl(e.target.value)}
-                  placeholder="ws://localhost:8080/ws"
-                  spellCheck={false}
-                />
-                {!wsConnected ? (
-                  <button
-                    className="btn btn-send-inline"
-                    onClick={connectWs}
-                    disabled={!wsUrl.trim()}
+              {/* WS URL Bar */}
+              <div className="url-bar-dock">
+                <div className="ws-url-bar">
+                  <select
+                    className="method-select ws-method"
+                    value={wsUrl.startsWith('wss://') ? 'wss' : 'ws'}
+                    onChange={e => {
+                      const newScheme = e.target.value;
+                      setWsUrl(wsUrl.replace(/^wss?/, newScheme));
+                    }}
+                    style={{ color: '#2dd4bf' }}
                   >
-                    Connect
-                  </button>
-                ) : (
-                  <button className="btn btn-danger" onClick={disconnectWs}>
-                    Disconnect
-                  </button>
-                )}
+                    <option value="ws">WS</option>
+                    <option value="wss">WSS</option>
+                  </select>
+                  <input
+                    type="text"
+                    className="url-input"
+                    value={wsUrl}
+                    onChange={e => setWsUrl(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !wsConnected) connectWs(); }}
+                    placeholder="ws://localhost:8080/ws"
+                    spellCheck={false}
+                  />
+                  {!wsConnected ? (
+                    <button
+                      className="btn btn-send"
+                      onClick={connectWs}
+                      disabled={!wsUrl.trim()}
+                    >
+                      Connect
+                    </button>
+                  ) : (
+                    <button className="btn btn-disconnect" onClick={disconnectWs}>
+                      Disconnect
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="ws-status-bar">
-                <span className={`ws-status ${wsConnected ? 'connected' : 'disconnected'}`}>
-                  {wsConnected ? 'Connected' : 'Disconnected'}
-                </span>
-                {wsConnected && wsProtocolInfo && (
-                  <span className="ws-protocol-info">
-                    {wsProtocolInfo}
-                  </span>
-                )}
-              </div>
+
+              {/* WS Status */}
+              {wsConnected && (
+                <div className="ws-status-strip">
+                  <span className="ws-status-dot connected"></span>
+                  <span>Connected</span>
+                  {wsProtocolInfo && (
+                    <span className="ws-proto-badge">{wsProtocolInfo}</span>
+                  )}
+                </div>
+              )}
+
               <WsPanel
                 messages={wsMessages}
                 onSend={sendWsMessage}
