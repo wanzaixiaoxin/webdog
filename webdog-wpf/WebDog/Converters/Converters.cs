@@ -43,7 +43,7 @@ namespace WebDog.Converters
         {
             var protocol = value?.ToString();
             var expected = parameter?.ToString();
-            return protocol == expected ? new SolidColorBrush(Color.FromRgb(45, 212, 191)) : new SolidColorBrush(Color.FromRgb(100, 116, 139));
+            return protocol == expected ? new SolidColorBrush(Color.FromRgb(45, 212, 191)) : new SolidColorBrush(Color.FromRgb(139, 148, 158));
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -55,14 +55,14 @@ namespace WebDog.Converters
             var m = value?.ToString()?.ToUpperInvariant();
             var color = m switch
             {
-                "GET" => Color.FromRgb(56, 189, 248),
+                "GET" => Color.FromRgb(96, 165, 250),
                 "POST" => Color.FromRgb(52, 211, 153),
-                "PUT" => Color.FromRgb(245, 158, 11),
-                "DELETE" => Color.FromRgb(251, 113, 133),
+                "PUT" => Color.FromRgb(251, 191, 36),
+                "DELETE" => Color.FromRgb(248, 113, 113),
                 "PATCH" => Color.FromRgb(45, 212, 191),
-                "HEAD" => Color.FromRgb(148, 163, 184),
+                "HEAD" => Color.FromRgb(139, 148, 158),
                 "OPTIONS" => Color.FromRgb(96, 165, 250),
-                _ => Color.FromRgb(148, 163, 184),
+                _ => Color.FromRgb(139, 148, 158),
             };
             return new SolidColorBrush(color);
         }
@@ -73,15 +73,15 @@ namespace WebDog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return new SolidColorBrush(Color.FromRgb(100, 116, 139));
+            if (value == null) return new SolidColorBrush(Color.FromRgb(110, 118, 129));
             var status = System.Convert.ToInt32(value);
             var color = status switch
             {
                 >= 200 and < 300 => Color.FromRgb(52, 211, 153),
-                >= 300 and < 400 => Color.FromRgb(245, 158, 11),
-                >= 400 and < 500 => Color.FromRgb(251, 113, 133),
+                >= 300 and < 400 => Color.FromRgb(251, 191, 36),
+                >= 400 and < 500 => Color.FromRgb(248, 113, 113),
                 >= 500 => Color.FromRgb(239, 68, 68),
-                _ => Color.FromRgb(100, 116, 139),
+                _ => Color.FromRgb(110, 118, 129),
             };
             return new SolidColorBrush(color);
         }
@@ -118,8 +118,19 @@ namespace WebDog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (value is bool b && b)
-                ? new SolidColorBrush(Color.FromRgb(251, 113, 133))
-                : new SolidColorBrush(Color.FromRgb(13, 148, 136));
+                ? new SolidColorBrush(Color.FromRgb(248, 113, 113))
+                : new SolidColorBrush(Color.FromRgb(45, 212, 191));
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class WsButtonStyleConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool connected = value is bool b && b;
+            var key = connected ? "DangerButton" : "AccentButton";
+            return Application.Current?.TryFindResource(key);
+        }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 

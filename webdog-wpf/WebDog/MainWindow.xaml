@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:WebDog.ViewModels"
         mc:Ignorable="d"
         Title="WebDog" Height="800" Width="1200"
-        Background="#0f172a" Foreground="#f8fafc"
+        Background="#0D1117" Foreground="#F0F6FC"
         WindowStartupLocation="CenterScreen">
 
     <Window.DataContext>
@@ -20,8 +20,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#0b1221" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="12,8">
+        <!-- ==================================================== HEADER -->
+        <Border Grid.Row="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="14,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -29,50 +29,55 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+
+                <!-- Logo -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="WebDog" FontSize="16" FontWeight="Bold" Foreground="#2dd4bf"/>
+                    <TextBlock Text="⚡" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="WebDog" FontSize="15" FontWeight="SemiBold" Foreground="#F0F6FC"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="20,0,0,0" VerticalAlignment="Center">
-                    <Border Background="#111827" CornerRadius="4" BorderBrush="#334155" BorderThickness="1">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="HTTP" Padding="12,4"
-                                    Background="Transparent" BorderThickness="0"
-                                    Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=http}"
-                                    Command="{Binding SetProtocolCommand}" CommandParameter="http"/>
-                            <Rectangle Width="1" Fill="#334155"/>
-                            <Button Content="WS" Padding="12,4"
-                                    Background="Transparent" BorderThickness="0"
-                                    Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=ws}"
-                                    Command="{Binding SetProtocolCommand}" CommandParameter="ws"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+
+                <!-- Protocol Toggle -->
+                <Border Grid.Column="1" Margin="24,0,0,0" Background="#1C2128" CornerRadius="6"
+                        BorderBrush="#30363D" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="HTTP" Padding="14,5"
+                                Style="{StaticResource GhostButton}"
+                                Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=http}"
+                                Command="{Binding SetProtocolCommand}" CommandParameter="http"/>
+                        <Rectangle Width="1" Fill="#30363D" VerticalAlignment="Stretch" Margin="0,3"/>
+                        <Button Content="WS" Padding="14,5"
+                                Style="{StaticResource GhostButton}"
+                                Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=ws}"
+                                Command="{Binding SetProtocolCommand}" CommandParameter="ws"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Right buttons -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
-                    <Button Content="Env" Padding="8,4" Margin="4,0"
-                            Background="Transparent" BorderThickness="0"
-                            Foreground="#94a3b8"
+                    <Button Content="Env" Style="{StaticResource GhostButton}" Margin="4,0"
                             Command="{Binding ToggleEnvCommand}"/>
-                    <Button Content="History" Padding="8,4" Margin="4,0"
-                            Background="Transparent" BorderThickness="0"
-                            Foreground="#94a3b8"
+                    <Button Content="History" Style="{StaticResource GhostButton}" Margin="4,0"
                             Command="{Binding ToggleHistoryCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- URL Bar -->
-        <Border Grid.Row="1" Background="#0b1221" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="12,10">
+        <!-- ==================================================== URL BAR -->
+        <Border Grid.Row="1" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="14,12">
             <Grid>
+                <!-- HTTP URL Bar -->
                 <Grid Visibility="{Binding IsHttpMode, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" Width="90" Text="{Binding Method, Mode=OneWay}"
+                    <ComboBox Grid.Column="0" Width="96" Text="{Binding Method, Mode=OneWay}"
                               IsEditable="True" IsReadOnly="True"
                               VerticalContentAlignment="Center"
-                              Background="#111827" BorderBrush="#334155" Padding="8,4">
+                              Background="#1C2128" BorderBrush="#21262D" Padding="10,5"
+                              Foreground="#60A5FA" FontWeight="SemiBold" FontSize="13">
                         <ComboBoxItem Content="GET"/>
                         <ComboBoxItem Content="POST"/>
                         <ComboBoxItem Content="PUT"/>
@@ -81,60 +86,62 @@
                         <ComboBoxItem Content="HEAD"/>
                         <ComboBoxItem Content="OPTIONS"/>
                     </ComboBox>
-                    <TextBox Grid.Column="1" Margin="8,0" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"
-                             Background="#111827" BorderBrush="#334155" Foreground="#f8fafc"
-                             VerticalContentAlignment="Center" Padding="10,6"
-                             FontFamily="Consolas">
+                    <TextBox Grid.Column="1" Margin="10,0" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"
+                             Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                             VerticalContentAlignment="Center" Padding="12,7"
+                             FontFamily="Cascadia Code, Consolas" FontSize="13">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding SendRequestCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
-                    <Button Grid.Column="2" Content="Send" Padding="16,6"
-                            Background="#0d9488" Foreground="White" BorderThickness="0"
+                    <Button Grid.Column="2" Content="Send" Style="{StaticResource AccentButton}"
+                            Width="80"
                             Command="{Binding SendRequestCommand}"/>
                 </Grid>
 
+                <!-- WS URL Bar -->
                 <Grid Visibility="{Binding IsWsMode, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" Width="70" VerticalContentAlignment="Center"
-                              Background="#111827" Foreground="#2dd4bf" BorderBrush="#334155" Padding="8,4">
+                    <ComboBox Grid.Column="0" Width="76" VerticalContentAlignment="Center"
+                              Background="#1C2128" Foreground="#2DD4BF" BorderBrush="#21262D" Padding="10,5"
+                              FontSize="13">
                         <ComboBoxItem Content="ws" IsSelected="True"/>
                         <ComboBoxItem Content="wss"/>
                     </ComboBox>
-                    <TextBox Grid.Column="1" Margin="8,0" Text="{Binding WsUrl, UpdateSourceTrigger=PropertyChanged}"
-                             Background="#111827" BorderBrush="#334155" Foreground="#f8fafc"
-                             VerticalContentAlignment="Center" Padding="10,6"
-                             FontFamily="Consolas">
+                    <TextBox Grid.Column="1" Margin="10,0" Text="{Binding WsUrl, UpdateSourceTrigger=PropertyChanged}"
+                             Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                             VerticalContentAlignment="Center" Padding="12,7"
+                             FontFamily="Cascadia Code, Consolas" FontSize="13">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding ConnectWsCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
-                    <Button Grid.Column="2" Padding="16,6" BorderThickness="0"
-                            Background="{Binding WsConnected, Converter={StaticResource WsButtonBrushConverter}}"
-                            Foreground="White"
+                    <Button Grid.Column="2" Width="110" Padding="0"
+                            Style="{Binding WsConnected, Converter={StaticResource WsButtonStyleConverter}}"
                             Content="{Binding WsConnected, Converter={StaticResource WsButtonTextConverter}}"
                             Command="{Binding ConnectWsCommand}"/>
                 </Grid>
             </Grid>
         </Border>
 
-        <!-- Main Content -->
+        <!-- ==================================================== MAIN -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding ShowHistory, Converter={StaticResource BoolToGridLength}, ConverterParameter=260}"
+                <ColumnDefinition Width="{Binding ShowHistory, Converter={StaticResource BoolToGridLength}, ConverterParameter=280}"
                                   MinWidth="0" MaxWidth="400" x:Name="HistoryCol"/>
                 <ColumnDefinition Width="{Binding ShowHistory, Converter={StaticResource BoolToGridLength}, ConverterParameter=Auto}"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="{Binding ShowEnv, Converter={StaticResource BoolToGridLength}, ConverterParameter=Auto}"/>
-                <ColumnDefinition Width="{Binding ShowEnv, Converter={StaticResource BoolToGridLength}, ConverterParameter=260}"
+                <ColumnDefinition Width="{Binding ShowEnv, Converter={StaticResource BoolToGridLength}, ConverterParameter=280}"
                                   MinWidth="0" MaxWidth="400" x:Name="EnvCol"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="#0b1221" BorderBrush="#1e293b" BorderThickness="0,0,1,0"
+            <!-- ====================== HISTORY SIDEBAR -->
+            <Border Grid.Column="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,1,0"
                     Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -143,19 +150,20 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="History" FontWeight="Bold" Padding="12,10" Foreground="#94a3b8"/>
-                    <TextBox Grid.Row="1" Margin="10,0,10,8" Padding="8,4"
-                             Background="#111827" BorderBrush="#334155" Foreground="#f8fafc"
+                    <TextBlock Grid.Row="0" Text="History" FontWeight="SemiBold" Padding="14,12" Foreground="#8B949E" FontSize="12"/>
+                    <TextBox Grid.Row="1" Margin="12,0,12,8" Padding="8,5"
+                             Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
                              Text="{Binding HistorySearch, UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="12"/>
-                    <Button Grid.Row="2" Content="Clear All" Margin="10,0,10,8" Padding="6,4"
-                            Background="Transparent" BorderBrush="#334155" Foreground="#64748b" FontSize="11"
+                             FontSize="12" FontFamily="Segoe UI"/>
+                    <Button Grid.Row="2" Content="Clear All" Margin="12,0,12,10"
+                            Style="{StaticResource GhostButton}" Foreground="#6E7681" FontSize="11"
                             Command="{Binding ClearHistoryCommand}"/>
                     <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding FilteredHistory}">
+                        <ItemsControl ItemsSource="{Binding FilteredHistory}" Margin="8,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="Transparent" Padding="10,6" BorderBrush="#1e293b" BorderThickness="0,0,0,1"
+                                    <Border Margin="4,2" Padding="10,8" CornerRadius="6"
+                                            Background="Transparent"
                                             MouseLeftButtonUp="HistoryItem_Click">
                                         <Grid>
                                             <Grid.RowDefinitions>
@@ -163,13 +171,13 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Method}" FontSize="10" FontWeight="Bold" Padding="4,1"
+                                                <TextBlock Text="{Binding Method}" FontSize="10" FontWeight="Bold"
                                                            Foreground="{Binding Method, Converter={StaticResource MethodColorConverter}}"/>
-                                                <TextBlock Text="{Binding Status}" FontSize="10" Margin="6,0,0,0"
+                                                <TextBlock Text="{Binding Status}" FontSize="10" Margin="8,0,0,0"
                                                            Foreground="{Binding Status, Converter={StaticResource StatusColorConverter}}"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Row="1" Text="{Binding Url}" FontSize="11"
-                                                       Foreground="#64748b" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Url}" FontSize="11" Margin="0,3,0,0"
+                                                       Foreground="#6E7681" TextTrimming="CharacterEllipsis"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -179,14 +187,11 @@
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="4" Background="#1e293b" HorizontalAlignment="Stretch"
+            <GridSplitter Grid.Column="1" Width="4" Background="#21262D" HorizontalAlignment="Stretch"
                           Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}"/>
 
+            <!-- ====================== CENTER AREA -->
             <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
                 <Grid Visibility="{Binding IsHttpMode, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -194,127 +199,142 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Background="#0f172a" BorderBrush="#1e293b" BorderThickness="0,0,1,0">
+                    <!-- ===== REQUEST PANEL -->
+                    <Border Grid.Column="0" Background="#0D1117" BorderBrush="#21262D" BorderThickness="0,0,1,0">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TabControl Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1">
-                                <TabItem Header="Params">
-                                    <StackPanel Margin="10">
-                                        <Button Content="+ Add" Padding="8,3" Margin="0,0,0,8"
-                                                Background="Transparent" BorderBrush="#334155" Foreground="#64748b" FontSize="11"
+                            <Grid Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Section: Params -->
+                                <StackPanel Grid.Row="0" Margin="14,12,14,0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Text="Query Parameters" Foreground="#8B949E" FontSize="11" FontWeight="SemiBold"/>
+                                        <Button Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
+                                                Foreground="#6E7681" Padding="6,2"
                                                 Command="{Binding AddParamCommand}"/>
-                                        <ItemsControl ItemsSource="{Binding Params}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="0,2">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,4,0"
-                                                                  VerticalAlignment="Center"/>
-                                                        <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                                 Background="#111827" BorderBrush="#334155"/>
-                                                        <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                                 Background="#111827" BorderBrush="#334155"/>
-                                                        <Button Grid.Column="3" Content="x" Padding="4,0" Margin="2,0,0,0"
-                                                                Background="Transparent" BorderThickness="0" Foreground="#475569" FontSize="11"
-                                                                Command="{Binding DataContext.RemoveParamCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
                                     </StackPanel>
-                                </TabItem>
-                                <TabItem Header="Headers">
-                                    <StackPanel Margin="10">
-                                        <Button Content="+ Add" Padding="8,3" Margin="0,0,0,8"
-                                                Background="Transparent" BorderBrush="#334155" Foreground="#64748b" FontSize="11"
+                                    <ItemsControl ItemsSource="{Binding Params}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,6,0"
+                                                              VerticalAlignment="Center"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                                             Margin="3,0" FontSize="12" Padding="6,4"
+                                                             Background="#1C2128" BorderBrush="#21262D"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                             Margin="3,0" FontSize="12" Padding="6,4"
+                                                             Background="#1C2128" BorderBrush="#21262D"/>
+                                                    <Button Grid.Column="3" Content="✕" Padding="4,0" Margin="3,0,0,0"
+                                                            Style="{StaticResource GhostButton}" Foreground="#484F58" FontSize="10"
+                                                            Command="{Binding DataContext.RemoveParamCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!-- Section: Headers -->
+                                <StackPanel Grid.Row="1" Margin="14,16,14,0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Text="Headers" Foreground="#8B949E" FontSize="11" FontWeight="SemiBold"/>
+                                        <Button Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
+                                                Foreground="#6E7681" Padding="6,2"
                                                 Command="{Binding AddHeaderCommand}"/>
-                                        <ItemsControl ItemsSource="{Binding Headers}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="0,2">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,4,0"
-                                                                  VerticalAlignment="Center"/>
-                                                        <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                                 Background="#111827" BorderBrush="#334155"/>
-                                                        <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                                 Background="#111827" BorderBrush="#334155"/>
-                                                        <Button Grid.Column="3" Content="x" Padding="4,0" Margin="2,0,0,0"
-                                                                Background="Transparent" BorderThickness="0" Foreground="#475569" FontSize="11"
-                                                                Command="{Binding DataContext.RemoveHeaderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
                                     </StackPanel>
-                                </TabItem>
-                                <TabItem Header="Body">
-                                    <Grid Margin="10">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                            <Border Background="#111827" CornerRadius="4" BorderBrush="#334155" BorderThickness="1">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Button Content="none" Padding="8,3" Background="Transparent" BorderThickness="0" FontSize="11"
-                                                            Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=none}"
-                                                            Command="{Binding SetBodyTypeCommand}" CommandParameter="none"/>
-                                                    <Button Content="JSON" Padding="8,3" Background="Transparent" BorderThickness="0" FontSize="11"
-                                                            Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=json}"
-                                                            Command="{Binding SetBodyTypeCommand}" CommandParameter="json"/>
-                                                    <Button Content="Text" Padding="8,3" Background="Transparent" BorderThickness="0" FontSize="11"
-                                                            Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=text}"
-                                                            Command="{Binding SetBodyTypeCommand}" CommandParameter="text"/>
-                                                    <Button Content="Form" Padding="8,3" Background="Transparent" BorderThickness="0" FontSize="11"
-                                                            Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=formdata}"
-                                                            Command="{Binding SetBodyTypeCommand}" CommandParameter="formdata"/>
-                                                    <Button Content="Raw" Padding="8,3" Background="Transparent" BorderThickness="0" FontSize="11"
-                                                            Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=raw}"
-                                                            Command="{Binding SetBodyTypeCommand}" CommandParameter="raw"/>
-                                                </StackPanel>
-                                            </Border>
-                                            <Button Content="Format" Padding="8,3" Margin="8,0,0,0"
-                                                    Background="Transparent" BorderBrush="#334155" Foreground="#64748b" FontSize="11"
-                                                    Command="{Binding FormatJsonCommand}"/>
+                                    <ItemsControl ItemsSource="{Binding Headers}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,6,0"
+                                                              VerticalAlignment="Center"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                                             Margin="3,0" FontSize="12" Padding="6,4"
+                                                             Background="#1C2128" BorderBrush="#21262D"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                             Margin="3,0" FontSize="12" Padding="6,4"
+                                                             Background="#1C2128" BorderBrush="#21262D"/>
+                                                    <Button Grid.Column="3" Content="✕" Padding="4,0" Margin="3,0,0,0"
+                                                            Style="{StaticResource GhostButton}" Foreground="#484F58" FontSize="10"
+                                                            Command="{Binding DataContext.RemoveHeaderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!-- Section: Body -->
+                                <StackPanel Grid.Row="2" Margin="14,16,14,0">
+                                    <TextBlock Text="Body" Foreground="#8B949E" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <Border Background="#1C2128" CornerRadius="6" Padding="4"
+                                            BorderBrush="#30363D" BorderThickness="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="none" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
+                                                    Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=none}"
+                                                    Command="{Binding SetBodyTypeCommand}" CommandParameter="none"/>
+                                            <Button Content="JSON" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
+                                                    Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=json}"
+                                                    Command="{Binding SetBodyTypeCommand}" CommandParameter="json"/>
+                                            <Button Content="Text" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
+                                                    Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=text}"
+                                                    Command="{Binding SetBodyTypeCommand}" CommandParameter="text"/>
+                                            <Button Content="Form" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
+                                                    Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=formdata}"
+                                                    Command="{Binding SetBodyTypeCommand}" CommandParameter="formdata"/>
+                                            <Button Content="Raw" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
+                                                    Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=raw}"
+                                                    Command="{Binding SetBodyTypeCommand}" CommandParameter="raw"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Row="1" Text="{Binding Body, Converter={StaticResource JsonValidationConverter}}"
-                                                   Foreground="#fb7185" FontSize="11" Margin="0,0,0,4"/>
-                                        <TextBox Grid.Row="2" Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}"
-                                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                                                 FontFamily="Consolas" FontSize="12" Padding="8"
-                                                 Background="#111827" BorderBrush="#334155" Foreground="#f8fafc"/>
-                                    </Grid>
-                                </TabItem>
-                            </TabControl>
+                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                        <TextBlock Text="{Binding Body, Converter={StaticResource JsonValidationConverter}}"
+                                                   Foreground="#F87171" FontSize="11" VerticalAlignment="Center"/>
+                                        <Button Content="Format" Style="{StaticResource GhostButton}" FontSize="11"
+                                                Foreground="#6E7681" Padding="8,3" Margin="12,0,0,0"
+                                                Command="{Binding FormatJsonCommand}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Body editor -->
+                                <TextBox Grid.Row="3" Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="14,12,14,14"
+                                         AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Code, Consolas" FontSize="13" Padding="10"
+                                         Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                                         Height="200"/>
+                            </Grid>
                         </Grid>
                     </Border>
 
-                    <GridSplitter Grid.Column="1" Width="4" Background="#1e293b" HorizontalAlignment="Stretch"/>
+                    <GridSplitter Grid.Column="1" Width="4" Background="#21262D" HorizontalAlignment="Stretch"/>
 
-                    <Border Grid.Column="2" Background="#0f172a">
+                    <!-- ===== RESPONSE PANEL -->
+                    <Border Grid.Column="2" Background="#0D1117">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -322,93 +342,79 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0" Background="#0b1221" Margin="0,0,0,1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding Response.Status, FallbackValue=''}"
-                                           Foreground="{Binding Response.Status, Converter={StaticResource StatusColorConverter}}"
-                                           FontWeight="Bold" Padding="12,8" FontSize="13"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Response.StatusText, FallbackValue='Waiting...'}"
-                                           Foreground="#64748b" Padding="4,8" FontSize="12"/>
-                                <TextBlock Grid.Column="2" Padding="8,8" FontSize="11"
-                                           Foreground="#94a3b8"
-                                           Text="{Binding Response.Time, FallbackValue='', StringFormat={}{0}ms}"/>
-                                <TextBlock Grid.Column="3" Padding="8,8" FontSize="11"
-                                           Foreground="#94a3b8"
-                                           Text="{Binding Response.Size, FallbackValue='', StringFormat={}{0}B}"/>
-                            </Grid>
+                            <!-- Status Bar -->
+                            <Border Grid.Row="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1"
+                                    Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Response.Status, FallbackValue=''}"
+                                               Foreground="{Binding Response.Status, Converter={StaticResource StatusColorConverter}}"
+                                               FontWeight="SemiBold" FontSize="14" FontFamily="Cascadia Code, Consolas"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Response.StatusText, FallbackValue='No request sent'}"
+                                               Foreground="#8B949E" Margin="10,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Margin="16,0" Foreground="#6E7681" FontSize="11"
+                                               VerticalAlignment="Center" FontFamily="Cascadia Code, Consolas"
+                                               Text="{Binding Response.Time, FallbackValue='', StringFormat={}{0}ms}"/>
+                                    <TextBlock Grid.Column="4" Foreground="#6E7681" FontSize="11"
+                                               VerticalAlignment="Center" FontFamily="Cascadia Code, Consolas"
+                                               Text="{Binding Response.Size, FallbackValue='', StringFormat={}{0}B}"/>
+                                </Grid>
+                            </Border>
 
+                            <!-- Error -->
                             <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}"
-                                       Foreground="#fb7185" Padding="12,8" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="#F87171" Padding="14,10" FontSize="12" TextWrapping="Wrap"
+                                       Background="#3B1119"
                                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVis}}"/>
 
-                            <TabControl Grid.Row="2" Background="Transparent" BorderThickness="0">
-                                <TabItem Header="Body">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,4">
-                                            <Button Content="Pretty" Padding="8,3" Margin="0,0,4,0"
-                                                    Background="Transparent" BorderBrush="#334155" FontSize="11"
-                                                    Foreground="{Binding ResponseView, Converter={StaticResource ViewToggleColorConverter}, ConverterParameter=pretty}"
-                                                    Command="{Binding SetResponseViewCommand}" CommandParameter="pretty"/>
-                                            <Button Content="Raw" Padding="8,3" Margin="0,0,4,0"
-                                                    Background="Transparent" BorderBrush="#334155" FontSize="11"
-                                                    Foreground="{Binding ResponseView, Converter={StaticResource ViewToggleColorConverter}, ConverterParameter=raw}"
-                                                    Command="{Binding SetResponseViewCommand}" CommandParameter="raw"/>
-                                            <Button Content="Copy" Padding="8,3"
-                                                    Background="Transparent" BorderBrush="#334155" FontSize="11"
-                                                    Foreground="#94a3b8"
-                                                    Command="{Binding CopyResponseCommand}"/>
-                                        </StackPanel>
-                                        <TextBox Grid.Row="1" IsReadOnly="True"
-                                                 Text="{Binding Response.Body, FallbackValue=''}"
-                                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                                                 FontFamily="Consolas" FontSize="12" Padding="10"
-                                                 Background="#111827" BorderBrush="#334155" Foreground="#f8fafc"/>
-                                    </Grid>
-                                </TabItem>
-                                <TabItem Header="Headers">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                        <ItemsControl ItemsSource="{Binding Response.Headers}" Margin="10">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="0,3">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Key}" FontSize="11" FontWeight="SemiBold"
-                                                                   Foreground="#7dd3fc" MinWidth="160"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="11"
-                                                                   Foreground="#94a3b8" TextWrapping="Wrap"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </TabItem>
-                            </TabControl>
+                            <!-- Response Tabs -->
+                            <Grid Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="14,8">
+                                    <Button Content="Pretty" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,3"
+                                            Foreground="{Binding ResponseView, Converter={StaticResource ViewToggleColorConverter}, ConverterParameter=pretty}"
+                                            Command="{Binding SetResponseViewCommand}" CommandParameter="pretty"/>
+                                    <Button Content="Raw" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,3"
+                                            Foreground="{Binding ResponseView, Converter={StaticResource ViewToggleColorConverter}, ConverterParameter=raw}"
+                                            Command="{Binding SetResponseViewCommand}" CommandParameter="raw"/>
+                                    <Button Content="Copy" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,3"
+                                            Foreground="#6E7681"
+                                            Command="{Binding CopyResponseCommand}"/>
+                                </StackPanel>
+
+                                <TextBox Grid.Row="1" IsReadOnly="True"
+                                         Text="{Binding Response.Body, FallbackValue=''}"
+                                         AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Code, Consolas" FontSize="13" Padding="14"
+                                         Background="#0D1117" BorderThickness="0" Foreground="#F0F6FC"/>
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>
 
+                <!-- ================== WS MODE -->
                 <Grid Visibility="{Binding IsWsMode, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding WsMessages}" Margin="10">
+                        <ItemsControl ItemsSource="{Binding WsMessages}" Margin="12">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Margin="0,4" Padding="10,6" CornerRadius="6"
+                                    <Border Margin="0,4" Padding="12,10" CornerRadius="8"
                                             Background="{Binding Type, Converter={StaticResource WsMessageBgConverter}}"
                                             BorderBrush="{Binding Type, Converter={StaticResource WsMessageBorderConverter}}"
                                             BorderThickness="1">
@@ -420,47 +426,53 @@
                                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Type}" FontSize="10" FontWeight="Bold"
                                                            Foreground="{Binding Type, Converter={StaticResource WsMessageFgConverter}}"/>
-                                                <TextBlock FontSize="10" Margin="8,0,0,0" Foreground="#475569"
+                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="#484F58"
+                                                           FontFamily="Cascadia Code, Consolas"
                                                            Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}"/>
-                                                <TextBlock FontSize="10" Margin="8,0,0,0" Foreground="#475569"
+                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="#484F58"
+                                                           FontFamily="Cascadia Code, Consolas"
                                                            Text="{Binding Size, StringFormat={}{0}B}"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Row="1" Text="{Binding Data}" FontSize="12"
-                                                       Foreground="#f8fafc" TextWrapping="Wrap" Margin="0,4,0,0"
-                                                       FontFamily="Consolas"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Data}" FontSize="13"
+                                                       Foreground="#F0F6FC" TextWrapping="Wrap" Margin="0,6,0,0"
+                                                       FontFamily="Cascadia Code, Consolas"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Grid Grid.Row="1" Background="#0b1221" Margin="0,1,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Text="{Binding WsInput, UpdateSourceTrigger=PropertyChanged}"
-                                 VerticalContentAlignment="Center" Padding="10,6"
-                                 Background="#111827" BorderBrush="#334155" Foreground="#f8fafc">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding SendWsMessageCommand}"/>
-                            </TextBox.InputBindings>
-                        </TextBox>
-                        <Button Grid.Column="1" Content="Send" Padding="16,6" Margin="8,0"
-                                Background="#0d9488" Foreground="White" BorderThickness="0"
-                                Command="{Binding SendWsMessageCommand}"/>
-                        <Button Grid.Column="2" Content="Clear" Padding="12,6"
-                                Background="Transparent" BorderBrush="#334155" Foreground="#64748b"
-                                Command="{Binding ClearWsMessagesCommand}"/>
-                    </Grid>
+
+                    <Border Grid.Row="1" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,1,0,0"
+                            Padding="12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding WsInput, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center" Padding="12,7"
+                                     Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SendWsMessageCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Grid.Column="1" Content="Send" Style="{StaticResource AccentButton}"
+                                    Margin="8,0" Width="70"
+                                    Command="{Binding SendWsMessageCommand}"/>
+                            <Button Grid.Column="2" Content="Clear" Style="{StaticResource GhostButton}"
+                                    Command="{Binding ClearWsMessagesCommand}"/>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Grid>
 
-            <GridSplitter Grid.Column="3" Width="4" Background="#1e293b" HorizontalAlignment="Stretch"
+            <GridSplitter Grid.Column="3" Width="4" Background="#21262D" HorizontalAlignment="Stretch"
                           Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}"/>
 
-            <Border Grid.Column="4" Background="#0b1221" BorderBrush="#1e293b" BorderThickness="1,0,0,0"
+            <!-- ====================== ENV SIDEBAR -->
+            <Border Grid.Column="4" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="1,0,0,0"
                     Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -469,11 +481,11 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Environment" FontWeight="Bold" Padding="12,10" Foreground="#94a3b8"/>
-                    <TextBlock Grid.Row="1" Text="Use {{variable}} in URL/headers/body" Padding="12,0,12,8"
-                               Foreground="#475569" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Text="Environment" FontWeight="SemiBold" Padding="14,12" Foreground="#8B949E" FontSize="12"/>
+                    <TextBlock Grid.Row="1" Text="Use {{variable}} in URL, headers, body" Padding="14,0,14,10"
+                               Foreground="#484F58" FontSize="11"/>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding EnvVars}" Margin="10,0">
+                        <ItemsControl ItemsSource="{Binding EnvVars}" Margin="12,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,4">
@@ -483,16 +495,18 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,4,0"
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" Margin="0,0,6,0"
                                                   VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
-                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                 Background="#111827" BorderBrush="#334155" FontFamily="Consolas"/>
+                                                 Margin="3,0" FontSize="11" Padding="6,4"
+                                                 Background="#1C2128" BorderBrush="#21262D"
+                                                 FontFamily="Cascadia Code, Consolas"/>
                                         <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                 Margin="2,0" FontSize="11" Padding="4,2"
-                                                 Background="#111827" BorderBrush="#334155" FontFamily="Consolas"/>
-                                        <Button Grid.Column="3" Content="x" Padding="4,0" Margin="2,0,0,0"
-                                                Background="Transparent" BorderThickness="0" Foreground="#475569" FontSize="11"
+                                                 Margin="3,0" FontSize="11" Padding="6,4"
+                                                 Background="#1C2128" BorderBrush="#21262D"
+                                                 FontFamily="Cascadia Code, Consolas"/>
+                                        <Button Grid.Column="3" Content="✕" Padding="4,0" Margin="3,0,0,0"
+                                                Style="{StaticResource GhostButton}" Foreground="#484F58" FontSize="10"
                                                 Command="{Binding DataContext.RemoveEnvVarCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"/>
                                     </Grid>
@@ -500,8 +514,9 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Button Grid.Row="3" Content="+ Add Variable" Margin="10" Padding="8,4"
-                            Background="Transparent" BorderBrush="#334155" BorderThickness="1" Foreground="#64748b" FontSize="11"
+                    <Button Grid.Row="3" Content="+ Add Variable" Margin="14,12" Padding="10,6"
+                            Style="{StaticResource GhostButton}" Foreground="#6E7681" FontSize="11"
+                            HorizontalAlignment="Left"
                             Command="{Binding AddEnvVarCommand}"/>
                 </Grid>
             </Border>
