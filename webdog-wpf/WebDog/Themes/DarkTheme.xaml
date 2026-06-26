@@ -474,7 +474,6 @@
                             </Track.IncreaseRepeatButton>
                             <Track.Thumb>
                                 <Thumb Background="{StaticResource TextDimBrush}"
-                                       CornerRadius="3"
                                        Cursor="Hand">
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
