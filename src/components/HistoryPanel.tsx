@@ -5,9 +5,17 @@ interface Props {
   history: HistoryItem[];
   onSelect: (item: HistoryItem) => void;
   onClear: () => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function HistoryPanel({ history, onSelect, onClear }: Props) {
+const IconTrashSmall = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+);
+
+export default function HistoryPanel({ history, onSelect, onClear, onDelete }: Props) {
   const [search, setSearch] = useState('');
 
   const filtered = history.filter(h =>
@@ -60,26 +68,37 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
           <div
             key={item.id}
             className="history-item"
-            onClick={() => onSelect(item)}
             title={item.url}
           >
-            <span
-              className="history-method"
-              style={{ backgroundColor: methodColor(item.method) }}
-            >
-              {item.method}
-            </span>
-            <span className="history-url">
-              {item.url}
-            </span>
-            {item.status && (
-              <span className={`history-status ${statusClass(item.status)}`}>
-                {item.status}
+            <div className="history-item-main" onClick={() => onSelect(item)}>
+              <span
+                className="history-method"
+                style={{ backgroundColor: methodColor(item.method) }}
+              >
+                {item.method}
               </span>
+              <span className="history-url">
+                {item.url}
+              </span>
+              {item.status && (
+                <span className={`history-status ${statusClass(item.status)}`}>
+                  {item.status}
+                </span>
+              )}
+              <span className="history-time-label">
+                {new Date(item.timestamp).toLocaleTimeString()}
+              </span>
+            </div>
+            {onDelete && (
+              <button
+                className="history-delete-btn"
+                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                title="Delete"
+                aria-label="Delete history item"
+              >
+                <IconTrashSmall />
+              </button>
             )}
-            <span className="history-time-label">
-              {item.timestamp.toLocaleTimeString()}
-            </span>
           </div>
         ))}
       </div>

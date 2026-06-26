@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { KeyValuePair, BodyType } from '../types';
 import KeyValueEditor from './KeyValueEditor';
+import JsonEditor from './JsonEditor';
 
 interface Props {
   params: KeyValuePair[];
@@ -32,6 +33,15 @@ export default function RequestPanel({
 
   const activeParamsCount = params.filter(p => p.enabled && p.key.trim()).length;
   const activeHeadersCount = headers.filter(p => p.enabled && p.key.trim()).length;
+
+  const handleBodyTypeChange = (type: BodyType) => {
+    onBodyTypeChange(type);
+    if (type === 'none') {
+      onBodyChange('');
+    } else if (type === 'json' && bodyType !== 'json') {
+      onBodyChange('');
+    }
+  };
 
   return (
     <div className="request-panel">
@@ -80,20 +90,34 @@ export default function RequestPanel({
                 <button
                   key={bt.value}
                   className={`body-type-btn ${bodyType === bt.value ? 'active' : ''}`}
-                  onClick={() => onBodyTypeChange(bt.value)}
+                  onClick={() => handleBodyTypeChange(bt.value)}
                 >
                   {bt.label}
                 </button>
               ))}
             </div>
             {hasBody && bodyType !== 'none' ? (
-              <textarea
-                className="body-editor"
-                value={body}
-                onChange={e => onBodyChange(e.target.value)}
-                placeholder={bodyType === 'json' ? '{\n  "key": "value"\n}' : 'Enter body content...'}
-                spellCheck={false}
-              />
+              bodyType === 'json' ? (
+                <JsonEditor
+                  value={body}
+                  onChange={onBodyChange}
+                  placeholder='{\n  "key": "value"\n}'
+                />
+              ) : (
+                <textarea
+                  className="body-editor"
+                  value={body}
+                  onChange={e => onBodyChange(e.target.value)}
+                  placeholder={
+                    bodyType === 'formdata'
+                      ? '{\n  "key": "value"\n}\n\nor key=value&key2=value2'
+                      : bodyType === 'urlencoded'
+                        ? 'key=value&key2=value2'
+                        : 'Enter body content...'
+                  }
+                  spellCheck={false}
+                />
+              )
             ) : (
               <div className="body-empty">
                 {hasBody ? 'No request body will be sent.' : 'This method does not send a request body.'}

@@ -44,7 +44,14 @@ export interface HistoryItem {
   url: string;
   status?: number;
   time?: number;
-  timestamp: Date;
+  timestamp: string;
   request: RequestConfig;
   response?: ResponseData;
+}
+
+export interface EnvVariable {
+  id: string;
+  key: string;
+  value: string;
+  enabled: boolean;
 }

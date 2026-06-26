@@ -134,3 +134,76 @@ export function jsonHighlight(json: string): string {
     }
   );
 }
+
+export function replaceEnvVars(text: string, envVars: { key: string; value: string; enabled: boolean }[]): string {
+  let result = text;
+  for (const v of envVars) {
+    if (!v.enabled || !v.key.trim()) continue;
+    const pattern = new RegExp(`\\{\\{\\s*${escapeRegex(v.key)}\\s*\\}\\}`, 'g');
+    result = result.replace(pattern, v.value);
+  }
+  return result;
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function formatJson(input: string): string {
+  try {
+    const obj = JSON.parse(input);
+    return JSON.stringify(obj, null, 2);
+  } catch {
+    return input;
+  }
+}
+
+export function validateJson(input: string): string | null {
+  try {
+    JSON.parse(input);
+    return null;
+  } catch (e) {
+    return e instanceof Error ? e.message : 'Invalid JSON';
+  }
+}
+
+const HISTORY_STORAGE_KEY = 'webdog-history';
+const ENV_STORAGE_KEY = 'webdog-env';
+
+export function saveHistoryToStorage(history: import('./types').HistoryItem[]): void {
+  try {
+    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 200)));
+  } catch {
+    // storage full or unavailable
+  }
+}
+
+export function loadHistoryFromStorage(): import('./types').HistoryItem[] {
+  try {
+    const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as import('./types').HistoryItem[];
+    return Array.isArray(parsed) ? parsed.slice(0, 200) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveEnvToStorage(envVars: import('./types').EnvVariable[]): void {
+  try {
+    window.localStorage.setItem(ENV_STORAGE_KEY, JSON.stringify(envVars));
+  } catch {
+    // storage full or unavailable
+  }
+}
+
+export function loadEnvFromStorage(): import('./types').EnvVariable[] {
+  try {
+    const raw = window.localStorage.getItem(ENV_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as import('./types').EnvVariable[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}

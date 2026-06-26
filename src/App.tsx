@@ -1,23 +1,22 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type {
   HttpMethod, Protocol, RequestConfig, ResponseData,
-  WsMessage, HistoryItem, KeyValuePair, BodyType
+  WsMessage, HistoryItem, KeyValuePair, BodyType, EnvVariable
 } from './types';
-import { buildUrlWithParams, getHttpFetchUrl, isTauri, kvPairsToRecord, genId, normalizeHttpUrl, normalizeWsUrl } from './utils';
+import {
+  buildUrlWithParams, getHttpFetchUrl, isTauri, kvPairsToRecord,
+  genId, normalizeHttpUrl, normalizeWsUrl, replaceEnvVars,
+  saveHistoryToStorage, loadHistoryFromStorage,
+  saveEnvToStorage, loadEnvFromStorage,
+} from './utils';
 import RequestPanel from './components/RequestPanel';
 import ResponsePanel from './components/ResponsePanel';
 import WsPanel from './components/WsPanel';
 import HistoryPanel from './components/HistoryPanel';
+import EnvPanel from './components/EnvPanel';
 import './App.css';
 
 // SVG Icons
-const IconHistory = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
-    <path d="M12 7v5l4 2"/>
-  </svg>
-);
-
 const IconSend = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
@@ -43,6 +42,13 @@ const IconMoon = () => (
 const IconSidebar = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+  </svg>
+);
+
+const IconEnv = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <path d="m9 12 2 2 4-4"/>
   </svg>
 );
 
@@ -101,8 +107,12 @@ function App() {
   const wsRef = useRef<WsHandle | null>(null);
 
   // History
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>(() => loadHistoryFromStorage());
   const [showHistory, setShowHistory] = useState(false);
+
+  // Environment variables
+  const [envVars, setEnvVars] = useState<EnvVariable[]>(() => loadEnvFromStorage());
+  const [showEnvPanel, setShowEnvPanel] = useState(false);
 
   // Splitter
   const [splitPos, setSplitPos] = useState(45);
@@ -111,6 +121,16 @@ function App() {
   // Sidebar resize
   const [sidebarWidth, setSidebarWidth] = useState(260);
   const sidebarDragging = useRef(false);
+
+  // Persist history
+  useEffect(() => {
+    saveHistoryToStorage(history);
+  }, [history]);
+
+  // Persist env vars
+  useEffect(() => {
+    saveEnvToStorage(envVars);
+  }, [envVars]);
 
   // Detect protocol from URL
   const handleUrlChange = (u: string) => {
@@ -132,6 +152,14 @@ function App() {
     }
   };
 
+  // Apply env vars to a string
+  const applyEnv = useCallback((text: string) => replaceEnvVars(text, envVars), [envVars]);
+
+  // Apply env vars to key-value pairs
+  const applyEnvToPairs = useCallback((pairs: KeyValuePair[]): KeyValuePair[] =>
+    pairs.map(p => ({ ...p, key: applyEnv(p.key), value: applyEnv(p.value) })),
+  [applyEnv]);
+
   // === HTTP Request ===
   const sendRequest = useCallback(async () => {
     if (!url.trim()) return;
@@ -145,9 +173,15 @@ function App() {
       setUrl(normalizedUrl);
     }
 
-    const fullUrl = buildUrlWithParams(normalizedUrl, params);
-    let headerRecord = kvPairsToRecord(headers);
-    const willSendBody = !['GET', 'HEAD'].includes(method) && bodyType !== 'none' && Boolean(body.trim());
+    // Apply environment variables
+    const envUrl = applyEnv(normalizedUrl);
+    const envParams = applyEnvToPairs(params);
+    const envHeaders = applyEnvToPairs(headers);
+    const envBody = applyEnv(body);
+
+    const fullUrl = buildUrlWithParams(envUrl, envParams);
+    let headerRecord = kvPairsToRecord(envHeaders);
+    const willSendBody = !['GET', 'HEAD'].includes(method) && bodyType !== 'none' && Boolean(envBody.trim());
 
     if (!willSendBody) {
       const headersWithoutBodyType = { ...headerRecord };
@@ -170,24 +204,24 @@ function App() {
 
       if (willSendBody) {
         if (bodyType === 'json') {
-          fetchOptions.body = body;
+          fetchOptions.body = envBody;
           if (!headerRecord['Content-Type']) {
             fetchOptions.headers = { ...headerRecord, 'Content-Type': 'application/json' };
           }
         } else if (bodyType === 'urlencoded') {
-          fetchOptions.body = body;
+          fetchOptions.body = envBody;
           if (!headerRecord['Content-Type']) {
             fetchOptions.headers = { ...headerRecord, 'Content-Type': 'application/x-www-form-urlencoded' };
           }
         } else if (bodyType === 'formdata') {
           const fd = new FormData();
           try {
-            const obj = JSON.parse(body);
+            const obj = JSON.parse(envBody);
             for (const [k, v] of Object.entries(obj)) {
               fd.append(k, String(v));
             }
           } catch {
-            body.split('&').forEach(pair => {
+            envBody.split('&').forEach(pair => {
               const [k, ...rest] = pair.split('=');
               if (k) fd.append(k, rest.join('='));
             });
@@ -197,7 +231,7 @@ function App() {
           delete h['Content-Type'];
           fetchOptions.headers = h;
         } else {
-          fetchOptions.body = body;
+          fetchOptions.body = envBody;
         }
       }
 
@@ -231,7 +265,7 @@ function App() {
         url: fullUrl,
         status: res.status,
         time,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         request: config,
         response: responseData,
       };
@@ -255,7 +289,7 @@ function App() {
         id: genId(),
         method,
         url: fullUrl,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         time,
         request: config,
       };
@@ -263,7 +297,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [url, params, headers, method, bodyType, body, protocol]);
+  }, [url, params, headers, method, bodyType, body, protocol, applyEnv, applyEnvToPairs]);
 
   // === WebSocket ===
   const connectWs = useCallback(() => {
@@ -275,7 +309,7 @@ function App() {
       wsRef.current = null;
     }
     setWsProtocolInfo('');
-    const normalizedUrl = normalizeWsUrl(wsUrl);
+    const normalizedUrl = normalizeWsUrl(applyEnv(wsUrl));
     if (normalizedUrl !== wsUrl.trim()) {
       setWsUrl(normalizedUrl);
     }
@@ -349,7 +383,7 @@ function App() {
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
-  }, [wsUrl]);
+  }, [wsUrl, applyEnv]);
 
   const disconnectWs = useCallback(() => {
     const handle = wsRef.current;
@@ -369,20 +403,21 @@ function App() {
   const sendWsMessage = useCallback((msg: string) => {
     const handle = wsRef.current;
     if (!handle) return;
+    const finalMsg = applyEnv(msg);
     if (handle.kind === 'native') {
       if (handle.ws.readyState === WebSocket.OPEN) {
-        handle.ws.send(msg);
+        handle.ws.send(finalMsg);
         setWsMessages(prev => [...prev, {
-          id: genId(), type: 'sent', data: msg, timestamp: new Date(), size: new Blob([msg]).size,
+          id: genId(), type: 'sent', data: finalMsg, timestamp: new Date(), size: new Blob([finalMsg]).size,
         }]);
       }
     } else {
-      void handle.conn.send(msg);
+      void handle.conn.send(finalMsg);
       setWsMessages(prev => [...prev, {
-        id: genId(), type: 'sent', data: msg, timestamp: new Date(), size: new Blob([msg]).size,
+        id: genId(), type: 'sent', data: finalMsg, timestamp: new Date(), size: new Blob([finalMsg]).size,
       }]);
     }
-  }, []);
+  }, [applyEnv]);
 
   // === History ===
   const selectHistory = useCallback((item: HistoryItem) => {
@@ -398,6 +433,9 @@ function App() {
   }, []);
 
   const clearHistory = useCallback(() => setHistory([]), []);
+  const deleteHistoryItem = useCallback((id: string) => {
+    setHistory(prev => prev.filter(h => h.id !== id));
+  }, []);
 
   // === Sidebar Resize ===
   const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
@@ -485,7 +523,14 @@ function App() {
 
         <div className="header-right">
           <button
-            className="btn btn-icon-sm"
+            className={`btn btn-icon-sm ${showEnvPanel ? 'active' : ''}`}
+            onClick={() => setShowEnvPanel(!showEnvPanel)}
+            title="Toggle environment panel"
+          >
+            <IconEnv />
+          </button>
+          <button
+            className={`btn btn-icon-sm ${showHistory ? 'active' : ''}`}
             onClick={() => setShowHistory(!showHistory)}
             title="Toggle history panel"
           >
@@ -503,6 +548,16 @@ function App() {
       </header>
 
       <div className="app-body">
+        {/* Environment Panel */}
+        {showEnvPanel && (
+          <>
+            <aside className="sidebar env-sidebar" style={{ width: 300 }}>
+              <EnvPanel envVars={envVars} onChange={setEnvVars} />
+            </aside>
+            <div className="sidebar-resizer" onMouseDown={handleSidebarMouseDown}></div>
+          </>
+        )}
+
         {/* History Sidebar */}
         {showHistory && (
           <>
@@ -511,6 +566,7 @@ function App() {
                 history={history}
                 onSelect={selectHistory}
                 onClear={clearHistory}
+                onDelete={deleteHistoryItem}
               />
             </aside>
             <div className="sidebar-resizer" onMouseDown={handleSidebarMouseDown}></div>

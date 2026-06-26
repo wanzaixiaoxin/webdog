@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ResponseData } from '../types';
 import { formatSize, formatTime, jsonHighlight } from '../utils';
+import JsonTree from './JsonTree';
 
 const IconRocket = () => (
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.25 }}>
@@ -8,6 +9,13 @@ const IconRocket = () => (
     <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
     <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
     <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+  </svg>
+);
+
+const IconCopy = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
   </svg>
 );
 
@@ -19,7 +27,8 @@ interface Props {
 
 export default function ResponsePanel({ response, loading, error }: Props) {
   const [activeTab, setActiveTab] = useState<'body' | 'headers'>('body');
-  const [bodyView, setBodyView] = useState<'pretty' | 'raw'>('pretty');
+  const [bodyView, setBodyView] = useState<'pretty' | 'raw' | 'tree'>('pretty');
+  const [copied, setCopied] = useState(false);
 
   if (loading) {
     return (
@@ -59,7 +68,7 @@ export default function ResponsePanel({ response, loading, error }: Props) {
     response.status < 400 ? 'status-redirect' :
     response.status < 500 ? 'status-client-error' : 'status-server-error';
 
-  const formatBody = () => {
+  const formatBodyHtml = () => {
     if (bodyView === 'raw') {
       return response.body.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -68,6 +77,24 @@ export default function ResponsePanel({ response, loading, error }: Props) {
       return jsonHighlight(JSON.stringify(obj, null, 2));
     } catch {
       return response.body.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  };
+
+  const parsedJson = (() => {
+    try {
+      return JSON.parse(response.body);
+    } catch {
+      return null;
+    }
+  })();
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(response.body);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // ignore
     }
   };
 
@@ -115,10 +142,25 @@ export default function ResponsePanel({ response, loading, error }: Props) {
               Pretty
             </button>
             <button
+              className={`view-btn ${bodyView === 'tree' ? 'active' : ''}`}
+              onClick={() => setBodyView('tree')}
+              disabled={!parsedJson}
+              title={parsedJson ? 'Tree view' : 'Not valid JSON'}
+            >
+              Tree
+            </button>
+            <button
               className={`view-btn ${bodyView === 'raw' ? 'active' : ''}`}
               onClick={() => setBodyView('raw')}
             >
               Raw
+            </button>
+            <button
+              className={`view-btn copy-btn ${copied ? 'copied' : ''}`}
+              onClick={handleCopy}
+              title="Copy response body"
+            >
+              {copied ? 'Copied!' : <IconCopy />}
             </button>
           </div>
         )}
@@ -126,10 +168,16 @@ export default function ResponsePanel({ response, loading, error }: Props) {
 
       <div className="response-content">
         {activeTab === 'body' && (
-          <pre
-            className="response-body"
-            dangerouslySetInnerHTML={{ __html: formatBody() }}
-          />
+          bodyView === 'tree' && parsedJson ? (
+            <div className="response-body-tree">
+              <JsonTree data={parsedJson} />
+            </div>
+          ) : (
+            <pre
+              className="response-body"
+              dangerouslySetInnerHTML={{ __html: formatBodyHtml() }}
+            />
+          )
         )}
         {activeTab === 'headers' && (
           <div className="response-headers">

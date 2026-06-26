@@ -1417,6 +1417,382 @@ body {
 }
 
 /* ============================
+   JSON EDITOR
+   ============================ */
+.json-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-surface-3);
+}
+
+.json-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 10px;
+  background: var(--bg-surface-2);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.json-editor-error-badge {
+  font-size: 11px;
+  color: var(--red-400);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.json-editor-valid-badge {
+  font-size: 11px;
+  color: var(--green-400);
+  font-weight: 600;
+}
+
+.json-editor-container {
+  display: flex;
+  flex: 1;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.json-editor-line-numbers {
+  flex-shrink: 0;
+  padding: var(--space-3) 8px;
+  background: var(--bg-surface-2);
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-disabled);
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  text-align: right;
+  user-select: none;
+  overflow: hidden;
+}
+
+.json-line-number {
+  min-height: calc(13px * 1.65);
+}
+
+.json-editor-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.json-editor-highlight,
+.json-editor-textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: var(--space-3);
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  tab-size: 2;
+  white-space: pre;
+  word-wrap: normal;
+  overflow: auto;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.json-editor-highlight {
+  pointer-events: none;
+  z-index: 1;
+  color: var(--text-secondary);
+}
+
+.json-editor-textarea {
+  z-index: 2;
+  color: transparent;
+  caret-color: var(--text-primary);
+  resize: none;
+}
+
+.json-editor-textarea::placeholder {
+  color: var(--text-disabled);
+}
+
+/* ============================
+   JSON TREE
+   ============================ */
+.json-tree {
+  padding: var(--space-3) var(--space-4);
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.json-tree-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: calc(13px * 1.7);
+  padding: 1px 0;
+  border-radius: var(--radius-xs);
+}
+
+.json-tree-branch {
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.json-tree-branch:hover {
+  background: var(--bg-hover);
+}
+
+.json-tree-chevron {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  transition: transform var(--duration-fast);
+}
+
+.json-tree-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.json-tree-key {
+  color: #7dd3fc;
+  font-weight: 600;
+}
+
+.json-tree-value {
+  word-break: break-word;
+}
+
+.json-tree-string { color: #86efac; }
+.json-tree-number { color: #fbbf24; }
+.json-tree-boolean { color: #5eead4; }
+.json-tree-object,
+.json-tree-undefined { color: var(--text-tertiary); }
+
+.json-tree-preview {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  margin-left: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.json-tree-type {
+  color: var(--text-disabled);
+  font-size: 10px;
+  margin-left: auto;
+  padding: 1px 6px;
+  background: var(--bg-surface-3);
+  border-radius: var(--radius-xs);
+}
+
+.response-body-tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--bg-canvas);
+}
+
+/* ============================
+   ENVIRONMENT PANEL
+   ============================ */
+.env-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.env-panel-header {
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  flex-shrink: 0;
+}
+
+.env-panel-header h3 {
+  margin: 0 0 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.env-panel-hint {
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.env-panel-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--space-3);
+}
+
+.env-panel-empty {
+  padding: var(--space-6) var(--space-4);
+  color: var(--text-disabled);
+  font-size: 12px;
+  text-align: center;
+}
+
+.env-panel-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr 28px;
+  gap: var(--space-1);
+  align-items: center;
+  padding: 4px 0;
+}
+
+.env-panel-checkbox {
+  width: 15px;
+  height: 15px;
+  justify-self: center;
+  accent-color: var(--brand-500);
+  cursor: pointer;
+}
+
+.env-panel-input {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--bg-surface-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 11px;
+  transition: border-color var(--duration-normal), background var(--duration-normal);
+}
+
+.env-panel-input:focus {
+  border-color: var(--brand-500);
+  background: var(--bg-surface-4);
+}
+
+.env-panel-input::placeholder {
+  color: var(--text-disabled);
+}
+
+.env-panel-delete {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-disabled);
+  cursor: pointer;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.env-panel-delete:hover {
+  background: var(--red-bg);
+  color: var(--red-400);
+}
+
+.env-panel-add {
+  width: calc(100% - var(--space-6));
+  min-height: 30px;
+  margin: var(--space-2) var(--space-3) var(--space-3);
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color var(--duration-normal), color var(--duration-normal), background var(--duration-normal);
+  flex-shrink: 0;
+}
+
+.env-panel-add:hover {
+  border-color: var(--brand-500);
+  color: var(--brand-400);
+  background: var(--brand-bg);
+}
+
+/* ============================
+   HISTORY DELETE BUTTON
+   ============================ */
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.history-item-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 36px;
+  margin-bottom: 1px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.history-item-main:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-subtle);
+}
+
+.history-delete-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-disabled);
+  cursor: pointer;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity var(--duration-fast), background var(--duration-fast), color var(--duration-fast);
+}
+
+.history-item:hover .history-delete-btn {
+  opacity: 1;
+}
+
+.history-delete-btn:hover {
+  background: var(--red-bg);
+  color: var(--red-400);
+}
+
+/* ============================
+   RESPONSE COPY BUTTON
+   ============================ */
+.copy-btn {
+  min-width: 60px;
+}
+
+.copy-btn.copied {
+  background: var(--green-500) !important;
+  color: #fff !important;
+}
+
+/* ============================
    RESPONSIVE
    ============================ */
 @media (max-width: 1100px) {
