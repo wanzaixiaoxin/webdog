@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="/Themes/DarkTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <c:BoolToGridLengthConverter x:Key="BoolToGridLength"/>
             <c:BoolToVisConverter x:Key="BoolToVis"/>
             <c:BoolToVisCollapsedConverter x:Key="BoolToVisCollapsed"/>
             <c:ProtocolColorConverter x:Key="ProtocolColorConverter"/>

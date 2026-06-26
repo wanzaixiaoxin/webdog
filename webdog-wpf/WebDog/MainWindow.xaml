@@ -132,17 +132,13 @@
         <!-- Main Content -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="260" MinWidth="200" MaxWidth="400"
-                                  x:Name="HistoryCol"
-                                  Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}"/>
-                <ColumnDefinition Width="Auto"
-                                  Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}"/>
+                <ColumnDefinition Width="{Binding ShowHistory, Converter={StaticResource BoolToGridLength}, ConverterParameter=260}"
+                                  MinWidth="0" MaxWidth="400" x:Name="HistoryCol"/>
+                <ColumnDefinition Width="{Binding ShowHistory, Converter={StaticResource BoolToGridLength}, ConverterParameter=Auto}"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"
-                                  Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}"/>
-                <ColumnDefinition Width="260" MinWidth="200" MaxWidth="400"
-                                  x:Name="EnvCol"
-                                  Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}"/>
+                <ColumnDefinition Width="{Binding ShowEnv, Converter={StaticResource BoolToGridLength}, ConverterParameter=Auto}"/>
+                <ColumnDefinition Width="{Binding ShowEnv, Converter={StaticResource BoolToGridLength}, ConverterParameter=260}"
+                                  MinWidth="0" MaxWidth="400" x:Name="EnvCol"/>
             </Grid.ColumnDefinitions>
 
             <!-- History Sidebar -->

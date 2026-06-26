@@ -7,6 +7,20 @@ using System.Windows.Media;
 
 namespace WebDog.Converters
 {
+    public class BoolToGridLengthConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool visible = value is bool b && b;
+            if (!visible) return new GridLength(0);
+            var param = parameter?.ToString();
+            if (param == "Auto") return GridLength.Auto;
+            if (double.TryParse(param, out double width)) return new GridLength(width);
+            return GridLength.Auto;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
     public class BoolToVisConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
