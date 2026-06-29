@@ -194,7 +194,6 @@ namespace WebDog.ViewModels
         // ---- Tabs ----
         private int _requestTabIndex;
         public int RequestTabIndex { get => _requestTabIndex; set => SetProperty(ref _requestTabIndex, value); }
-
         private int _responseTabIndex;
         public int ResponseTabIndex { get => _responseTabIndex; set => SetProperty(ref _responseTabIndex, value); }
 
@@ -285,6 +284,7 @@ namespace WebDog.ViewModels
         public ICommand SetAuthTypeCommand { get; }
         public ICommand GetOAuthTokenCommand { get; }
         public ICommand SetApiKeyLocationCommand { get; }
+        public ICommand SetRequestTabCommand { get; }
 
         private string _codeLanguage = "csharp";
         public string CodeLanguage { get => _codeLanguage; set => SetProperty(ref _codeLanguage, value); }
@@ -435,6 +435,7 @@ namespace WebDog.ViewModels
                 () => AuthType == "oauth2" && !string.IsNullOrWhiteSpace(OAuthTokenUrl)
                     && !string.IsNullOrWhiteSpace(OAuthClientId) && !string.IsNullOrWhiteSpace(OAuthClientSecret));
             SetApiKeyLocationCommand = new RelayCommand<string>(loc => ApiKeyLocation = loc);
+            SetRequestTabCommand = new RelayCommand<string>(t => { if (int.TryParse(t, out var idx)) RequestTabIndex = idx; });
 
             _wsService.OnMessage += msg =>
                 Application.Current?.Dispatcher?.Invoke(() => WsMessages.Add(msg));

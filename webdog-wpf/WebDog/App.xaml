@@ -38,6 +38,8 @@
             <c:TextTypeVisConverter x:Key="TextTypeVisConverter"/>
             <c:BinaryVisConverter x:Key="BinaryVisConverter"/>
             <c:WrapTextConverter x:Key="WrapTextConverter"/>
+            <c:EqToVisConverter x:Key="EqToVis"/>
+            <c:TabColorConverter x:Key="TabColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

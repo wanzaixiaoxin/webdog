@@ -365,6 +365,35 @@ namespace WebDog.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
+    public class EqToVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var v = value?.ToString();
+            var p = parameter?.ToString();
+            return v == p ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class TabColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush Active = new(Color.FromRgb(45, 212, 191));
+        private static readonly SolidColorBrush Inactive = new(Color.FromRgb(100, 116, 139));
+        static TabColorConverter()
+        {
+            Active.Freeze();
+            Inactive.Freeze();
+        }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var v = value?.ToString();
+            var p = parameter?.ToString();
+            return v == p ? Active : Inactive;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
     public class WrapTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
