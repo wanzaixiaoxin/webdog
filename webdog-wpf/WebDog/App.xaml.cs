@@ -33,9 +33,26 @@ namespace WebDog
 
         private void OnUnhandledUI(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            LogCrash("UI_THREAD", e.Exception);
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine($"Type: {e.Exception.GetType().FullName}");
+            sb.AppendLine($"Message: {e.Exception.Message}");
+            var inner = e.Exception.InnerException;
+            if (inner != null)
+            {
+                sb.AppendLine($"InnerType: {inner.GetType().FullName}");
+                sb.AppendLine($"InnerMsg: {inner.Message}");
+                sb.AppendLine($"InnerStack: {inner.StackTrace}");
+            }
+            sb.AppendLine($"Stack:\n{e.Exception.StackTrace}");
+
+            var log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "webdog_crash.txt");
+            try { File.WriteAllText(log, sb.ToString()); } catch { }
+
             e.Handled = true;
-            MessageBox.Show($"UI Error: {e.Exception.Message}\n\nDetails saved to %TEMP%\\webdog_crash.txt",
+            var brief = $"Type: {e.Exception.GetType().Name}\nMsg: {e.Exception.Message}";
+            if (inner != null) brief += $"\nInner: {inner.GetType().Name}: {inner.Message}";
+            MessageBox.Show($"{brief}\n\nCrash log written to:\n{log}",
                 "WebDog Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
