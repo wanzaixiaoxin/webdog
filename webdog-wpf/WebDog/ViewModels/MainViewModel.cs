@@ -285,6 +285,7 @@ namespace WebDog.ViewModels
         public ICommand GetOAuthTokenCommand { get; }
         public ICommand SetApiKeyLocationCommand { get; }
         public ICommand SetRequestTabCommand { get; }
+        public ICommand SetResponseTabCommand { get; }
 
         private string _codeLanguage = "csharp";
         public string CodeLanguage { get => _codeLanguage; set => SetProperty(ref _codeLanguage, value); }
@@ -436,6 +437,7 @@ namespace WebDog.ViewModels
                     && !string.IsNullOrWhiteSpace(OAuthClientId) && !string.IsNullOrWhiteSpace(OAuthClientSecret));
             SetApiKeyLocationCommand = new RelayCommand<string>(loc => ApiKeyLocation = loc);
             SetRequestTabCommand = new RelayCommand<string>(t => { if (int.TryParse(t, out var idx)) RequestTabIndex = idx; });
+            SetResponseTabCommand = new RelayCommand<string>(t => { if (int.TryParse(t, out var idx)) ResponseTabIndex = idx; });
 
             _wsService.OnMessage += msg =>
                 Application.Current?.Dispatcher?.Invoke(() => WsMessages.Add(msg));
