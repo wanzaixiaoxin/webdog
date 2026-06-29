@@ -7,7 +7,7 @@ namespace WebDog.Models
         public string Url { get; set; } = "";
         public int? Status { get; set; }
         public long? Time { get; set; }
-        public string Timestamp { get; set; } = System.DateTime.UtcNow.ToString("O");
+        public System.DateTime Timestamp { get; set; } = System.DateTime.UtcNow;
         public RequestConfig Request { get; set; } = new();
         public ResponseData Response { get; set; }
     }

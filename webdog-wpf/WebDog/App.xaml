@@ -25,6 +25,19 @@
             <c:WsMessageFgConverter x:Key="WsMessageFgConverter"/>
             <c:StringNotEmptyToVis x:Key="StringNotEmptyToVis"/>
             <c:JsonValidationConverter x:Key="JsonValidationConverter"/>
+            <c:InvertBoolConverter x:Key="InvertBoolConverter"/>
+            <c:FormatSizeConverter x:Key="FormatSizeConverter"/>
+            <c:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
+            <c:NullToVisConverter x:Key="NullToVis"/>
+            <c:ResponseViewVisConverter x:Key="ResponseViewVisConverter"/>
+            <c:ResponseViewSearchVisConverter x:Key="ResponseViewSearchVisConverter"/>
+            <c:JsonNodeTypeColorConverter x:Key="JsonNodeTypeColorConverter"/>
+            <c:BodyTypeVisConverter x:Key="BodyTypeVisConverter"/>
+            <c:FormBodyVisConverter x:Key="FormBodyVisConverter"/>
+            <c:FileTypeVisConverter x:Key="FileTypeVisConverter"/>
+            <c:TextTypeVisConverter x:Key="TextTypeVisConverter"/>
+            <c:BinaryVisConverter x:Key="BinaryVisConverter"/>
+            <c:WrapTextConverter x:Key="WrapTextConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

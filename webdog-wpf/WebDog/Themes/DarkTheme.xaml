@@ -353,17 +353,23 @@
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{TemplateBinding BorderThickness}"
                                             CornerRadius="6"
-                                            SnapsToDevicePixels="True">
+                                            SnapsToDevicePixels="True"
+                                            TextBlock.Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            TextBlock.FontWeight="{Binding FontWeight, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            TextBlock.FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            TextBlock.FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=ComboBox}}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="20"/>
                                             </Grid.ColumnDefinitions>
                                             <ContentPresenter Grid.Column="0"
+                                                              Name="ContentSite"
                                                               Margin="10,5,0,5"
                                                               HorizontalAlignment="Left"
                                                               VerticalAlignment="Center"
-                                                              Content="{TemplateBinding Content}"
+                                                              Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                              ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                               IsHitTestVisible="False"/>
                                             <Path Grid.Column="1"
                                                   Margin="0,0,6,0"

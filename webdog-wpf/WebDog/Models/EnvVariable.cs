@@ -1,10 +1,18 @@
+using WebDog.ViewModels;
+
 namespace WebDog.Models
 {
-    public class EnvVariable
+    public class EnvVariable : ViewModelBase
     {
         public string Id { get; set; } = System.Guid.NewGuid().ToString("N")[..8];
-        public string Key { get; set; } = "";
-        public string Value { get; set; } = "";
-        public bool Enabled { get; set; } = true;
+
+        private string _key = "";
+        public string Key { get => _key; set => SetProperty(ref _key, value); }
+
+        private string _value = "";
+        public string Value { get => _value; set => SetProperty(ref _value, value); }
+
+        private bool _enabled = true;
+        public bool Enabled { get => _enabled; set => SetProperty(ref _enabled, value); }
     }
 }

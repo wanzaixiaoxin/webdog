@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using System.Windows;
@@ -204,17 +205,170 @@ namespace WebDog.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = value?.ToString();
-            if (string.IsNullOrWhiteSpace(text)) return "";
+            var mode = parameter?.ToString();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                if (mode == "Vis") return Visibility.Collapsed;
+                if (mode == "IsValid") return false;
+                return "";
+            }
             try
             {
                 JsonSerializer.Deserialize<object>(text);
+                if (mode == "Vis") return Visibility.Collapsed;
+                if (mode == "IsValid") return true;
                 return "Valid JSON";
             }
             catch (Exception ex)
             {
+                if (mode == "Vis") return Visibility.Visible;
+                if (mode == "IsValid") return false;
                 return ex.Message;
             }
         }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class InvertBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is bool b ? !b : value;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is bool b ? !b : value;
+    }
+
+    public class FormatSizeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is not long size || size == 0) return "0 B";
+            string[] units = { "B", "KB", "MB", "GB" };
+            int unitIndex = 0;
+            double formatted = size;
+            while (formatted >= 1024 && unitIndex < units.Length - 1)
+            {
+                formatted /= 1024;
+                unitIndex++;
+            }
+            return $"{formatted:F1} {units[unitIndex]}";
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class NullToCollapsedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value == null ? Visibility.Collapsed : Visibility.Visible;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class NullToVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value != null ? Visibility.Visible : Visibility.Collapsed;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class ResponseViewVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var current = value?.ToString();
+            var expected = parameter?.ToString();
+            return current == expected ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class ResponseViewSearchVisConverter : IValueConverter
+    {
+        // Search box only for text views (pretty/raw), not tree.
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var view = value?.ToString();
+            return view == "tree" ? Visibility.Collapsed : Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class JsonNodeTypeColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush String = Make("#A5D6FF");
+        private static readonly SolidColorBrush Number = Make("#79C0FF");
+        private static readonly SolidColorBrush Bool = Make("#FF7B72");
+        private static readonly SolidColorBrush Null = Make("#6E7681");
+        private static readonly SolidColorBrush Struct = Make("#8B949E");
+
+        private static SolidColorBrush Make(string hex)
+        {
+            var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            b.Freeze();
+            return b;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value?.ToString() switch
+            {
+                "string" => String,
+                "number" => Number,
+                "boolean" => Bool,
+                "null" => Null,
+                _ => Struct,
+            };
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    /// <summary>Visible for text-based body types (json, text, raw); Collapsed for form-data/urlencoded/none.</summary>
+    public class BodyTypeVisConverter : IValueConverter
+    {
+        private static readonly HashSet<string> TextTypes = new() { "json", "text", "raw" };
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var t = value?.ToString();
+            return TextTypes.Contains(t) ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    /// <summary>Visible for key-value body types (form-data, urlencoded); Collapsed otherwise.</summary>
+    public class FormBodyVisConverter : IValueConverter
+    {
+        private static readonly HashSet<string> FormTypes = new() { "formdata", "urlencoded" };
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var t = value?.ToString();
+            return FormTypes.Contains(t) ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class FileTypeVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value?.ToString() == "file" ? Visibility.Visible : Visibility.Collapsed;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class TextTypeVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value?.ToString() != "file" ? Visibility.Visible : Visibility.Collapsed;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class BinaryVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value?.ToString() == "binary" ? Visibility.Visible : Visibility.Collapsed;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class WrapTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => (value is bool b && b) ? "Wrap: ON" : "Wrap: OFF";
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }

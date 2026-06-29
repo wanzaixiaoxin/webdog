@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -17,13 +18,34 @@ namespace WebDog.Services
         public event Action<WsMessage> OnMessage;
         public event Action OnDisconnected;
 
-        public async Task ConnectAsync(string url)
+        /// <summary>Connect with optional subprotocols and handshake headers.</summary>
+        public async Task ConnectAsync(string url, IEnumerable<string> subprotocols = null, IEnumerable<KeyValuePairModel> headers = null)
         {
             Disconnect();
             _cts = new CancellationTokenSource();
             _ws = new ClientWebSocket();
+
+            if (subprotocols != null)
+            {
+                foreach (var p in subprotocols)
+                {
+                    if (!string.IsNullOrWhiteSpace(p))
+                        _ws.Options.AddSubProtocol(p.Trim());
+                }
+            }
+
+            if (headers != null)
+            {
+                foreach (var h in headers)
+                {
+                    if (h.Enabled && !string.IsNullOrWhiteSpace(h.Key))
+                        _ws.Options.SetRequestHeader(h.Key, h.Value ?? "");
+                }
+            }
+
             await _ws.ConnectAsync(new Uri(url), _cts.Token);
-            OnMessage?.Invoke(new WsMessage { Type = "info", Data = $"Connected to {url}" });
+            var proto = string.IsNullOrEmpty(_ws.SubProtocol) ? "default" : _ws.SubProtocol;
+            OnMessage?.Invoke(new WsMessage { Type = "info", Data = $"Connected to {url} (protocol: {proto})" });
             _ = ReceiveLoopAsync();
         }
 
@@ -37,42 +59,50 @@ namespace WebDog.Services
             _cts = null;
         }
 
-        public async Task SendAsync(string message)
+        /// <summary>Send a text or binary message.</summary>
+        public async Task SendAsync(string message, bool isBinary = false)
         {
             if (_ws?.State != WebSocketState.Open) return;
             var bytes = Encoding.UTF8.GetBytes(message);
             await _ws.SendAsync(
                 new ArraySegment<byte>(bytes),
-                WebSocketMessageType.Text,
+                isBinary ? WebSocketMessageType.Binary : WebSocketMessageType.Text,
                 true,
                 _cts.Token);
         }
 
         private async Task ReceiveLoopAsync()
         {
-            var buffer = new byte[8192];
             try
             {
                 while (_ws?.State == WebSocketState.Open && !_cts.Token.IsCancellationRequested)
                 {
-                    var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
-                    if (result.MessageType == WebSocketMessageType.Close)
+                    var buffer = new byte[8192];
+                    using var messageStream = new System.IO.MemoryStream();
+                    WebSocketReceiveResult result;
+                    do
                     {
-                        OnMessage?.Invoke(new WsMessage
+                        result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
+                        if (result.MessageType == WebSocketMessageType.Close)
                         {
-                            Type = "info",
-                            Data = $"Connection closed (code: {(int?)result.CloseStatus}, reason: {result.CloseStatusDescription ?? "N/A"})"
-                        });
-                        OnDisconnected?.Invoke();
-                        return;
+                            OnMessage?.Invoke(new WsMessage
+                            {
+                                Type = "info",
+                                Data = $"Connection closed (code: {(int?)result.CloseStatus}, reason: {result.CloseStatusDescription ?? "N/A"})"
+                            });
+                            OnDisconnected?.Invoke();
+                            return;
+                        }
+                        messageStream.Write(buffer, 0, result.Count);
                     }
+                    while (!result.EndOfMessage);
 
-                    var data = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    var data = Encoding.UTF8.GetString(messageStream.ToArray());
                     OnMessage?.Invoke(new WsMessage
                     {
-                        Type = "received",
+                        Type = result.MessageType == WebSocketMessageType.Binary ? "binary" : "received",
                         Data = data,
-                        Size = result.Count,
+                        Size = messageStream.Length,
                     });
                 }
             }
