@@ -369,27 +369,37 @@ namespace WebDog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var v = value?.ToString();
-            var p = parameter?.ToString();
-            return v == p ? Visibility.Visible : Visibility.Collapsed;
+            try
+            {
+                var v = value?.ToString();
+                var p = parameter?.ToString();
+                return v == p ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch { return Visibility.Visible; }
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
     public class TabColorConverter : IValueConverter
     {
-        private static readonly SolidColorBrush Active = new(Color.FromRgb(45, 212, 191));
-        private static readonly SolidColorBrush Inactive = new(Color.FromRgb(100, 116, 139));
+        private static readonly SolidColorBrush Active;
+        private static readonly SolidColorBrush Inactive;
         static TabColorConverter()
         {
+            Active = new SolidColorBrush(Color.FromRgb(45, 212, 191));
+            Inactive = new SolidColorBrush(Color.FromRgb(100, 116, 139));
             Active.Freeze();
             Inactive.Freeze();
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var v = value?.ToString();
-            var p = parameter?.ToString();
-            return v == p ? Active : Inactive;
+            try
+            {
+                var v = value?.ToString();
+                var p = parameter?.ToString();
+                return v == p ? Active : Inactive;
+            }
+            catch { return Inactive; }
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }

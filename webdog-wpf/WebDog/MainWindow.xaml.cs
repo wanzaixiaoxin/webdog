@@ -38,9 +38,9 @@ namespace WebDog
                 e.PropertyName == nameof(MainViewModel.ResponseContentType) ||
                 e.PropertyName == nameof(MainViewModel.ResponseView))
             {
-                RenderHighlightedResponse();
+                try { RenderHighlightedResponse(); } catch { }
                 if (e.PropertyName == nameof(MainViewModel.ResponseView))
-                    RenderPreview();
+                    try { RenderPreview(); } catch { }
             }
         }
 

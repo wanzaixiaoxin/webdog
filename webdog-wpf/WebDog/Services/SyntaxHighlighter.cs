@@ -61,6 +61,14 @@ namespace WebDog.Services
                 return doc;
             }
 
+            // Limit body size for syntax highlighting (prevent crash on huge responses)
+            const int maxLen = 500_000;
+            if (text.Length > maxLen)
+            {
+                AppendPlain(doc, text);
+                return doc;
+            }
+
             try
             {
                 switch (lang)
