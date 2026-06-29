@@ -599,46 +599,32 @@ namespace WebDog.ViewModels
 
                 var res = await _httpService.SendAsync(Method, envUrl, envParams, envHeaders, BodyType, envBody, auth, FormParams.ToList(), contentType, _httpCts.Token);
 
-                // DEBUG: Write response to temp file for verification
+                // Update UI with response (wrapped to prevent crash on corrupted data)
                 try
                 {
-                    var debugPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "webdog_response.txt");
-                    var debugLines = new List<string>
+                    // Format JSON for pretty view
+                    if (!string.IsNullOrEmpty(res.Body))
                     {
-                        $"Status: {res.Status} {res.StatusText}",
-                        $"Body length: {res.Body?.Length ?? 0}",
-                        $"RawBody length: {res.RawBody?.Length ?? 0}",
-                        $"Headers count: {res.Headers?.Count ?? 0}",
-                        $"Size: {res.Size}",
-                        $"-----HEADERS-----",
-                    };
-                    if (res.Headers != null)
-                        foreach (var h in res.Headers)
-                            debugLines.Add($"  {h.Key}: {h.Value}");
-                    debugLines.Add("-----BODY(first 1000 chars)-----");
-                    debugLines.Add(res.Body?.Length > 1000 ? res.Body[..1000] : res.Body ?? "(null)");
-                    System.IO.File.WriteAllText(debugPath, string.Join("\n", debugLines));
-                    ErrorMessage = $"Debug written to: {debugPath} | BodyLen={res.Body?.Length ?? 0} Headers={res.Headers?.Count ?? 0}";
-                }
-                catch { }
-
-                // Format JSON for pretty view
-                if (!string.IsNullOrEmpty(res.Body))
-                {
-                    try
-                    {
-                        var jsonDoc = JsonDocument.Parse(res.Body);
-                        res.Body = JsonSerializer.Serialize(jsonDoc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+                        try
+                        {
+                            var jsonDoc = JsonDocument.Parse(res.Body);
+                            res.Body = JsonSerializer.Serialize(jsonDoc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+                        }
+                        catch { }
                     }
-                    catch { /* not JSON, keep raw */ }
+
+                    Response = res;
+                    UpdateDisplayedResponse();
+
+                    ResponseCookies.Clear();
+                    foreach (var c in res.Cookies ?? Enumerable.Empty<CookieItem>()) ResponseCookies.Add(c);
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Response display error: {ex.Message}";
                 }
 
-                Response = res;
-                UpdateDisplayedResponse();
-
-                // Update cookies
-                ResponseCookies.Clear();
-                foreach (var c in res.Cookies) ResponseCookies.Add(c);
+                // Save to history (outside inner try so errors still get saved)
 
                 var item = new HistoryItem
                 {
