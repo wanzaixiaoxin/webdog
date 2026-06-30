@@ -11,7 +11,9 @@ namespace WebDog.Services
         static Logger()
         {
             var dir = AppDomain.CurrentDomain.BaseDirectory;
-            _filePath = Path.Combine(dir, "webdog.log");
+            var logDir = Path.Combine(dir, "logs");
+            try { Directory.CreateDirectory(logDir); } catch { }
+            _filePath = Path.Combine(logDir, "webdog.log");
             try { File.WriteAllText(_filePath, $"=== WebDog Log Started {DateTime.Now:yyyy-MM-dd HH:mm:ss} ===\n"); } catch { }
         }
 
