@@ -873,8 +873,7 @@
                             </Border>
 
                             <!-- Response Tab Buttons -->
-                            <Border Grid.Row="1" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0"
-                                    Effect="{StaticResource TabShadow}">
+                            <Border Grid.Row="1" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Body" Style="{StaticResource GhostButton}" FontSize="12" Padding="12,5"
                                             Foreground="{Binding ResponseTabIndex, Converter={StaticResource TabColorConverter}, ConverterParameter=0}"
@@ -1292,8 +1291,7 @@
 
             <!-- ENV SIDEBAR -->
             <Border Grid.Column="4" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0"
-                    Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}"
-                    Effect="{StaticResource PanelShadow}">
+                    Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
