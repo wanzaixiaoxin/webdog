@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using WebDog.Models;
 using WebDog.Services;
 using WebDog.ViewModels;
@@ -20,7 +21,32 @@ namespace WebDog
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            StateChanged += MainWindow_StateChanged;
         }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (MaximizeButton == null) return;
+            var icon = MaximizeButton.Content as System.Windows.Shapes.Path;
+            if (icon == null) return;
+            if (WindowState == WindowState.Maximized)
+            {
+                icon.Data = Geometry.Parse("M0,0 L8,0 L8,8 L0,8 Z M0,2 L2,2 L2,0");
+                MaximizeButton.ToolTip = "Restore";
+            }
+            else
+            {
+                icon.Data = Geometry.Parse("M0,0 L10,0 L10,10 L0,10 Z");
+                MaximizeButton.ToolTip = "Maximize";
+            }
+        }
+
+        private void MinimizeWindow_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+        private void MaximizeWindow_Click(object sender, RoutedEventArgs e) =>
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+        private void CloseWindow_Click(object sender, RoutedEventArgs e) => Close();
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
