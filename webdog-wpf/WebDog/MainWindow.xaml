@@ -174,9 +174,9 @@
                             Style="{Binding WsConnected, Converter={StaticResource WsButtonStyleConverter}}"
                             Content="{Binding WsConnected, Converter={StaticResource WsButtonTextConverter}}"
                             Command="{Binding ConnectWsCommand}"/>
-                </Grid>
-            </Grid>
-        </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
 
         <!-- MAIN CONTENT -->
         <Grid Grid.Row="2">
@@ -192,8 +192,7 @@
 
             <!-- HISTORY SIDEBAR -->
             <Border Grid.Column="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0"
-                    Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}"
-                    Effect="{StaticResource PanelShadow}">
+                    Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -279,16 +278,14 @@
                     </Grid.RowDefinitions>
 
                     <!-- REQUEST PANEL (Top) -->
-                    <Border Grid.Row="0" Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1"
-                            Effect="{StaticResource PanelShadow}">
+                    <Border Grid.Row="0" Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,0,0,1">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <!-- Tab buttons -->
-                            <Border Grid.Row="0" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0"
-                                    Effect="{StaticResource TabShadow}">
+                            <Border Grid.Row="0" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Params" Style="{StaticResource GhostButton}" FontSize="12" Padding="12,5"
                                             Foreground="{Binding RequestTabIndex, Converter={StaticResource TabColorConverter}, ConverterParameter=0}"
@@ -781,11 +778,10 @@
                     </Grid>
                 </Border>
 
-                    <GridSplitter Grid.Row="1" Height="4" Background="{DynamicResource BorderSubtleBrush}" HorizontalAlignment="Stretch"/>
+                    <GridSplitter Grid.Row="1" Height="4" Background="{DynamicResource BorderDefaultBrush}" HorizontalAlignment="Stretch"/>
 
                     <!-- RESPONSE PANEL (Bottom) -->
-                    <Border Grid.Row="2" Background="{DynamicResource AppBgBrush}"
-                            Effect="{StaticResource PanelShadow}">
+                    <Border Grid.Row="2" Background="{DynamicResource AppBgBrush}">
                         <Grid ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
