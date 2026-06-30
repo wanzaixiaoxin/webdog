@@ -12,6 +12,7 @@ namespace WebDog.Services
             IsDark = isDark;
             var dicts = Application.Current.Resources.MergedDictionaries;
             dicts.Clear();
+            dicts.Add(new ResourceDictionary { Source = new Uri("/Themes/Shadows.xaml", UriKind.Relative) });
             dicts.Add(new ResourceDictionary { Source = new Uri("/Themes/DarkTheme.xaml", UriKind.Relative) });
             if (!isDark)
                 dicts.Add(new ResourceDictionary { Source = new Uri("/Themes/LightTheme.xaml", UriKind.Relative) });
