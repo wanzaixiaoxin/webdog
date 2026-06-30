@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <DropShadowEffect x:Key="PanelShadow" BlurRadius="8" Opacity="0.3" ShadowDepth="2" Color="#000000"/>
-    <DropShadowEffect x:Key="PanelShadowLight" BlurRadius="8" Opacity="0.12" ShadowDepth="2" Color="#000000"/>
-    <DropShadowEffect x:Key="CardShadow" BlurRadius="4" Opacity="0.15" ShadowDepth="1" Color="#000000"/>
-    <DropShadowEffect x:Key="TabShadow" BlurRadius="6" Opacity="0.2" ShadowDepth="1" Color="#000000"/>
+    <DropShadowEffect x:Key="PanelShadow" BlurRadius="16" Opacity="0.55" ShadowDepth="5" Color="#000000" Direction="270"/>
+    <DropShadowEffect x:Key="PanelShadowLight" BlurRadius="12" Opacity="0.25" ShadowDepth="4" Color="#000000" Direction="270"/>
+    <DropShadowEffect x:Key="CardShadow" BlurRadius="8" Opacity="0.35" ShadowDepth="3" Color="#000000"/>
+    <DropShadowEffect x:Key="TabShadow" BlurRadius="10" Opacity="0.4" ShadowDepth="4" Color="#000000" Direction="270"/>
 
 </ResourceDictionary>
