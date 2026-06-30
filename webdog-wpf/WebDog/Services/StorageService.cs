@@ -27,12 +27,19 @@ namespace WebDog.Services
         {
             try
             {
-                if (!File.Exists(_historyFile)) return new List<HistoryItem>();
+                if (!File.Exists(_historyFile))
+                {
+                    Logger.Info("No history file found, starting fresh");
+                    return new List<HistoryItem>();
+                }
                 var json = File.ReadAllText(_historyFile);
-                return JsonSerializer.Deserialize<List<HistoryItem>>(json) ?? new List<HistoryItem>();
+                var result = JsonSerializer.Deserialize<List<HistoryItem>>(json);
+                Logger.Info($"History loaded: {result?.Count ?? 0} items");
+                return result ?? new List<HistoryItem>();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Error("Failed to load history", ex);
                 return new List<HistoryItem>();
             }
         }
@@ -43,20 +50,31 @@ namespace WebDog.Services
             {
                 var json = JsonSerializer.Serialize(history, _options);
                 File.WriteAllText(_historyFile, json);
+                Logger.Info($"History saved: {history.Count} items");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to save history", ex);
+            }
         }
 
         public List<EnvVariable> LoadEnvVars()
         {
             try
             {
-                if (!File.Exists(_envFile)) return new List<EnvVariable>();
+                if (!File.Exists(_envFile))
+                {
+                    Logger.Info("No env file found, starting fresh");
+                    return new List<EnvVariable>();
+                }
                 var json = File.ReadAllText(_envFile);
-                return JsonSerializer.Deserialize<List<EnvVariable>>(json) ?? new List<EnvVariable>();
+                var result = JsonSerializer.Deserialize<List<EnvVariable>>(json);
+                Logger.Info($"Env vars loaded: {result?.Count ?? 0} items");
+                return result ?? new List<EnvVariable>();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Error("Failed to load env vars", ex);
                 return new List<EnvVariable>();
             }
         }
@@ -67,8 +85,12 @@ namespace WebDog.Services
             {
                 var json = JsonSerializer.Serialize(vars, _options);
                 File.WriteAllText(_envFile, json);
+                Logger.Info($"Env vars saved: {vars.Count} items");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to save env vars", ex);
+            }
         }
     }
 }

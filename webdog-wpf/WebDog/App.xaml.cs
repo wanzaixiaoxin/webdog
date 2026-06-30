@@ -10,9 +10,14 @@ namespace WebDog
     {
         public App()
         {
+            Logger.Info("=== Application starting ===");
+
             DispatcherUnhandledException += OnUnhandledUI;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledDomain;
             TaskScheduler.UnobservedTaskException += OnUnobservedTask;
+
+            Startup += (_, _) => Logger.Info("Application started successfully");
+            Exit += (_, _) => Logger.Info("=== Application exiting ===");
         }
 
         private void OnUnhandledUI(object sender, DispatcherUnhandledExceptionEventArgs e)

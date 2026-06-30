@@ -307,6 +307,7 @@ namespace WebDog.ViewModels
 
         public MainViewModel()
         {
+            Logger.Info("MainViewModel initializing");
             SendRequestCommand = new RelayCommand(async () => await SendRequestAsync(), () => !IsLoading && !string.IsNullOrWhiteSpace(Url));
             CancelRequestCommand = new RelayCommand(CancelRequest, () => IsLoading);
             RetryRequestCommand = new RelayCommand(async () => await RetryAsync(), () => !IsLoading && !string.IsNullOrWhiteSpace(_lastUrl));
@@ -423,6 +424,7 @@ namespace WebDog.ViewModels
             ToggleThemeCommand = new RelayCommand(() =>
             {
                 IsDarkTheme = !IsDarkTheme;
+                Logger.Info($"Theme switched to {(IsDarkTheme ? "Dark" : "Light")}");
                 _theme.ApplyTheme(IsDarkTheme);
             });
             SetProtocolCommand = new RelayCommand<string>(p => Protocol = p);
@@ -490,6 +492,7 @@ namespace WebDog.ViewModels
                     foreach (KeyValuePairModel item in e.OldItems)
                         item.PropertyChanged -= ParamItem_PropertyChanged;
             };
+            Logger.Info("MainViewModel initialized");
         }
 
         private void ParamItem_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -553,22 +556,28 @@ namespace WebDog.ViewModels
         {
             try
             {
-                OAuthTokenStatus = "Requesting token...";
                 var auth = GetCurrentAuth();
+                Logger.Info($"OAuth token request: {auth.OAuthTokenUrl}");
+                OAuthTokenStatus = "Requesting token...";
                 var result = await _oauthService.GetTokenAsync(auth);
                 OAuthAccessToken = result.AccessToken;
                 OAuthTokenStatus = result.ExpiresIn > 0
                     ? $"Token obtained (expires in {result.ExpiresIn}s)"
                     : "Token obtained";
+                Logger.Info("OAuth token obtained successfully");
             }
             catch (Exception ex)
             {
                 OAuthTokenStatus = $"Failed: {ex.Message}";
+                Logger.Error("OAuth token request failed", ex);
             }
         }
 
         private async Task SendRequestAsync()
         {
+            var envUrl = ApplyEnv(Url);
+            Logger.Info($"SendRequest started: {Method} {envUrl}");
+
             IsLoading = true;
             ErrorMessage = null;
             Response = null;
@@ -576,7 +585,6 @@ namespace WebDog.ViewModels
 
             try
             {
-                var envUrl = ApplyEnv(Url);
                 var envParams = Params.Select(p => new KeyValuePairModel { Id = p.Id, Key = ApplyEnv(p.Key), Value = ApplyEnv(p.Value), Enabled = p.Enabled }).ToList();
                 var envHeaders = Headers.Select(h => new KeyValuePairModel { Id = h.Id, Key = ApplyEnv(h.Key), Value = ApplyEnv(h.Value), Enabled = h.Enabled }).ToList();
                 var envBody = ApplyEnv(Body);
@@ -659,11 +667,17 @@ namespace WebDog.ViewModels
                 History.Insert(0, item);
                 if (History.Count > 200) History.RemoveAt(History.Count - 1);
                 _storage.SaveHistory(History.ToList());
+                Logger.Info($"SendRequest succeeded: {res.Status} {res.Size} bytes");
             }
-            catch (OperationCanceledException) { ErrorMessage = null; }
+            catch (OperationCanceledException)
+            {
+                ErrorMessage = null;
+                Logger.Info($"SendRequest cancelled: {Method} {envUrl}");
+            }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
+                Logger.Error($"SendRequest failed: {Method} {envUrl}", ex);
                 var item = new HistoryItem
                 {
                     Method = Method, Url = ApplyEnv(Url), Timestamp = DateTime.UtcNow,
@@ -693,6 +707,7 @@ namespace WebDog.ViewModels
 
         private void CancelRequest()
         {
+            Logger.Info("Request cancelled by user");
             _httpCts?.Cancel();
             IsLoading = false;
         }
@@ -700,6 +715,7 @@ namespace WebDog.ViewModels
         private async Task RetryAsync()
         {
             if (string.IsNullOrWhiteSpace(_lastUrl)) return;
+            Logger.Info($"Retrying: {_lastMethod} {_lastUrl}");
             // Restore the last request snapshot so Retry replays exactly the previous call
             Url = _lastUrl;
             Method = _lastMethod;
@@ -840,23 +856,28 @@ namespace WebDog.ViewModels
 
         private async Task ConnectWsAsync()
         {
+            var url = BuildWsUrl();
+            Logger.Info($"WS connect: {url}");
             try
             {
                 var subprotocols = string.IsNullOrWhiteSpace(WsSubprotocols)
                     ? null
                     : WsSubprotocols.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var headers = WsHeaders.Where(h => h.Enabled && !string.IsNullOrWhiteSpace(h.Key)).ToList();
-                await _wsService.ConnectAsync(BuildWsUrl(), subprotocols, headers);
+                await _wsService.ConnectAsync(url, subprotocols, headers);
                 WsConnected = true;
+                Logger.Info($"WS connected: {url}");
             }
             catch (Exception ex)
             {
                 WsMessages.Add(new WsMessage { Type = "error", Data = ex.Message });
+                Logger.Error($"WS connect failed: {url}", ex);
             }
         }
 
         private void DisconnectWs()
         {
+            Logger.Info("WS disconnect");
             _wsService.Disconnect();
             WsConnected = false;
         }
@@ -865,6 +886,7 @@ namespace WebDog.ViewModels
         {
             var isBinary = WsMessageType == "binary";
             var payload = ApplyEnv(WsInput);
+            Logger.Info($"WS send ({WsMessageType}): {payload.Length} chars");
             await _wsService.SendAsync(payload, isBinary);
             WsMessages.Add(new WsMessage { Type = "sent", Data = payload, Size = Encoding.UTF8.GetByteCount(payload) });
             WsInput = "";
