@@ -20,6 +20,7 @@ namespace WebDog.ViewModels
         private readonly WsService _wsService = new();
         private readonly StorageService _storage = new();
         private readonly OAuthService _oauthService = new();
+        private readonly ThemeService _theme = new();
         private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
         private CancellationTokenSource _httpCts;
 
@@ -240,6 +241,9 @@ namespace WebDog.ViewModels
         private bool _showEnv;
         public bool ShowEnv { get => _showEnv; set => SetProperty(ref _showEnv, value); }
 
+        private bool _isDarkTheme = true;
+        public bool IsDarkTheme { get => _isDarkTheme; set => SetProperty(ref _isDarkTheme, value); }
+
         // ---- Last request snapshot (for retry) ----
         private string _lastUrl = "";
         private string _lastMethod = "";
@@ -278,6 +282,7 @@ namespace WebDog.ViewModels
         public ICommand ToggleBodyWordWrapCommand { get; }
         public ICommand ToggleHistoryCommand { get; }
         public ICommand ToggleEnvCommand { get; }
+        public ICommand ToggleThemeCommand { get; }
         public ICommand SetProtocolCommand { get; }
         public ICommand SetResponseViewCommand { get; }
         public ICommand SetBodyTypeCommand { get; }
@@ -415,6 +420,11 @@ namespace WebDog.ViewModels
             ToggleBodyWordWrapCommand = new RelayCommand(() => BodyWordWrap = !BodyWordWrap);
             ToggleHistoryCommand = new RelayCommand(() => ShowHistory = !ShowHistory);
             ToggleEnvCommand = new RelayCommand(() => ShowEnv = !ShowEnv);
+            ToggleThemeCommand = new RelayCommand(() =>
+            {
+                IsDarkTheme = !IsDarkTheme;
+                _theme.ApplyTheme(IsDarkTheme);
+            });
             SetProtocolCommand = new RelayCommand<string>(p => Protocol = p);
             SetResponseViewCommand = new RelayCommand<string>(v => ResponseView = v);
             SetBodyTypeCommand = new RelayCommand<string>(t =>

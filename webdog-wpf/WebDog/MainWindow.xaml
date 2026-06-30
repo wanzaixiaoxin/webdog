@@ -76,6 +76,14 @@
                             <TextBlock Text="History" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <Button ToolTip="Toggle Dark/Light Theme" Style="{StaticResource GhostButton}" Padding="8,6"
+                            Command="{Binding ToggleThemeCommand}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x263E;" FontSize="13" Margin="0,0,4,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                            <TextBlock Text="Theme" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <!-- Window control buttons -->
                 <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-10,0,-10">
