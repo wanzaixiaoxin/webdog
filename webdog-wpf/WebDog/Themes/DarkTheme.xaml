@@ -191,7 +191,7 @@
 
     <Style x:Key="AccentButton" TargetType="Button">
         <Setter Property="Background"           Value="{StaticResource AccentBrush}"/>
-        <Setter Property="Foreground"           Value="#0D1117"/>
+        <Setter Property="Foreground"           Value="{DynamicResource AppBgBrush}"/>
         <Setter Property="BorderThickness"       Value="0"/>
         <Setter Property="Padding"              Value="16,8"/>
         <Setter Property="Cursor"               Value="Hand"/>

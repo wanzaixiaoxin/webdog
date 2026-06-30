@@ -9,7 +9,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="WebDog" Height="850" Width="1200"
-        Background="#0D1117" Foreground="#F0F6FC"
+        Background="{DynamicResource AppBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
         WindowStartupLocation="CenterScreen"
         TextOptions.TextFormattingMode="Display"
         UseLayoutRounding="True"
@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
 
         <!-- HEADER -->
-        <Border Grid.Row="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="16,10">
+        <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -43,16 +43,16 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Path Data="M4,2 L4,14 L8,10 L13,10 L10,2 Z" Fill="#2DD4BF" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="WebDog" FontSize="16" FontWeight="Bold" Foreground="#F0F6FC" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                    <Path Data="M4,2 L4,14 L8,10 L13,10 L10,2 Z" Fill="{DynamicResource AccentBrush}" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="WebDog" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" FontFamily="Segoe UI"/>
                 </StackPanel>
 
-                <Border Grid.Column="1" Margin="28,0,0,0" Background="#1C2128" CornerRadius="8" BorderBrush="#30363D" BorderThickness="1">
+                <Border Grid.Column="1" Margin="28,0,0,0" Background="{DynamicResource AppInputBrush}" CornerRadius="8" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal">
                         <Button Content="HTTP" Padding="16,6" Style="{StaticResource GhostButton}"
                                 Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=http}"
                                 Command="{Binding SetProtocolCommand}" CommandParameter="http"/>
-                        <Rectangle Width="1" Fill="#30363D" VerticalAlignment="Stretch" Margin="0,4"/>
+                        <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" VerticalAlignment="Stretch" Margin="0,4"/>
                         <Button Content="WebSocket" Padding="16,6" Style="{StaticResource GhostButton}"
                                 Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=ws}"
                                 Command="{Binding SetProtocolCommand}" CommandParameter="ws"/>
@@ -88,29 +88,29 @@
                 <!-- Window control buttons -->
                 <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-10,0,-10">
                     <Button x:Name="MinimizeButton" ToolTip="Minimize" Style="{StaticResource GhostButton}" Padding="14,8"
-                            Foreground="#8B949E" FontSize="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Click="MinimizeWindow_Click">
-                        <Path Data="M0,0 L12,0" Stroke="#8B949E" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform"/>
+                        <Path Data="M0,0 L12,0" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform"/>
                     </Button>
                     <Button x:Name="MaximizeButton" ToolTip="Maximize" Style="{StaticResource GhostButton}" Padding="14,8"
-                            Foreground="#8B949E" FontSize="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Click="MaximizeWindow_Click">
-                        <Path Data="M0,0 L10,0 L10,10 L0,10 Z" Stroke="#8B949E" StrokeThickness="1.2" Width="12" Height="12" Stretch="Uniform"/>
+                        <Path Data="M0,0 L10,0 L10,10 L0,10 Z" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.2" Width="12" Height="12" Stretch="Uniform"/>
                     </Button>
                     <Button x:Name="CloseButton" ToolTip="Close" Style="{StaticResource GhostButton}" Padding="14,8"
-                            Foreground="#8B949E" FontSize="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Click="CloseWindow_Click">
-                        <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="#8B949E" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform"/>
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform"/>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- URL BAR -->
-        <Border Grid.Row="1" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="16,10">
+        <Border Grid.Row="1" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
             <Grid>
                 <!-- HTTP URL Bar -->
                 <Grid Visibility="{Binding IsHttpMode, Converter={StaticResource BoolToVis}}">
@@ -123,10 +123,10 @@
                               ItemsSource="{Binding Methods}"
                               SelectedItem="{Binding Method, Mode=TwoWay}"
                               VerticalContentAlignment="Center"
-                              Background="#1C2128" BorderBrush="#21262D" Padding="10,5"
-                              Foreground="#60A5FA" FontWeight="SemiBold" FontSize="13" FontFamily="Cascadia Code, Consolas"/>
+                              Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Padding="10,5"
+                              Foreground="{DynamicResource BlueBrush}" FontWeight="SemiBold" FontSize="13" FontFamily="Cascadia Code, Consolas"/>
                     <TextBox Grid.Column="1" Margin="10,0" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"
-                             Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                             Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
                              VerticalContentAlignment="Center" Padding="14,8"
                              FontFamily="Cascadia Code, Consolas" FontSize="13">
                         <TextBox.InputBindings>
@@ -157,13 +157,13 @@
                     <ComboBox Grid.Column="0" Width="80" Text="{Binding WsScheme, Mode=TwoWay}"
                               IsEditable="False"
                               VerticalContentAlignment="Center"
-                              Background="#1C2128" Foreground="#2DD4BF" BorderBrush="#21262D" Padding="10,5"
+                              Background="{DynamicResource AppInputBrush}" Foreground="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Padding="10,5"
                               FontWeight="SemiBold" FontSize="13" FontFamily="Cascadia Code, Consolas">
                         <ComboBoxItem Content="ws" IsSelected="True"/>
                         <ComboBoxItem Content="wss"/>
                     </ComboBox>
                     <TextBox Grid.Column="1" Margin="10,0" Text="{Binding WsUrl, UpdateSourceTrigger=PropertyChanged}"
-                             Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                             Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
                              VerticalContentAlignment="Center" Padding="14,8"
                              FontFamily="Cascadia Code, Consolas" FontSize="13">
                         <TextBox.InputBindings>
@@ -191,7 +191,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- HISTORY SIDEBAR -->
-            <Border Grid.Column="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,1,0"
+            <Border Grid.Column="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0"
                     Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -200,15 +200,15 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="History" FontWeight="SemiBold" Padding="16,14,16,8"
-                               Foreground="#8B949E" FontSize="12" FontFamily="Segoe UI"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontFamily="Segoe UI"/>
                     <Grid Grid.Row="1" Margin="12,0,12,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Padding="8,6" Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                        <TextBox Grid.Column="0" Padding="8,6" Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
                                  Text="{Binding HistorySearch, UpdateSourceTrigger=PropertyChanged}" FontSize="12"/>
-                        <Button Grid.Column="1" Content="Clear" Style="{StaticResource GhostButton}" Foreground="#6E7681" FontSize="11"
+                        <Button Grid.Column="1" Content="Clear" Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                 Margin="6,0,0,0" Command="{Binding ClearHistoryCommand}"/>
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -224,7 +224,7 @@
                                                     <Setter Property="Background" Value="Transparent"/>
                                                     <Style.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#1C2128"/>
+                                                            <Setter Property="Background" Value="{DynamicResource AppInputBrush}"/>
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -241,17 +241,17 @@
                                                     <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold" Margin="8,0,0,0"
                                                                Foreground="{Binding Status, Converter={StaticResource StatusColorConverter}}"/>
                                                     <TextBlock Text="{Binding Time, StringFormat={}{0}ms}" FontSize="10" Margin="8,0,0,0"
-                                                               Foreground="#484F58" FontFamily="Cascadia Code, Consolas"/>
+                                                               Foreground="{DynamicResource TextDimBrush}" FontFamily="Cascadia Code, Consolas"/>
                                                 </StackPanel>
                                                 <TextBlock Grid.Row="1" Text="{Binding Url}" FontSize="11" Margin="0,4,0,0"
-                                                           Foreground="#8B949E" TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis"
                                                            FontFamily="Cascadia Code, Consolas"/>
                                                 <TextBlock Grid.Row="2" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" FontSize="10" Margin="0,4,0,0"
-                                                           Foreground="#484F58"/>
+                                                           Foreground="{DynamicResource TextDimBrush}"/>
                                             </Grid>
                                         </Border>
                                         <Button Content="&#x2715;" FontSize="9" Style="{StaticResource GhostButton}"
-                                                Foreground="#484F58" Padding="4,2" Margin="0,4,6,0"
+                                                Foreground="{DynamicResource TextDimBrush}" Padding="4,2" Margin="0,4,6,0"
                                                 HorizontalAlignment="Right" VerticalAlignment="Top"
                                                 Cursor="Hand" ToolTip="Delete this history item"
                                                 Command="{Binding DataContext.DeleteHistoryCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -264,7 +264,7 @@
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="4" Background="#21262D" HorizontalAlignment="Stretch"
+            <GridSplitter Grid.Column="1" Width="4" Background="{DynamicResource BorderSubtleBrush}" HorizontalAlignment="Stretch"
                           Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisCollapsed}}"/>
 
             <!-- CENTER AREA -->
@@ -278,14 +278,14 @@
                     </Grid.RowDefinitions>
 
                     <!-- REQUEST PANEL (Top) -->
-                    <Border Grid.Row="0" Background="#0D1117" BorderBrush="#21262D" BorderThickness="0,0,0,1">
+                    <Border Grid.Row="0" Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <!-- Tab buttons -->
-                            <Border Grid.Row="0" Background="#161B22" Padding="16,6" BorderBrush="#21262D" BorderThickness="0,0,1,0">
+                            <Border Grid.Row="0" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Params" Style="{StaticResource GhostButton}" FontSize="12" Padding="12,5"
                                             Foreground="{Binding RequestTabIndex, Converter={StaticResource TabColorConverter}, ConverterParameter=0}"
@@ -308,12 +308,12 @@
                                               Visibility="{Binding RequestTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=0}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                            <TextBlock Text="Query Parameters" Foreground="#8B949E" FontSize="12" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Query Parameters" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                             <Button Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#2DD4BF" Padding="8,4" Margin="12,0,0,0"
+                                                    Foreground="{DynamicResource AccentBrush}" Padding="8,4" Margin="12,0,0,0"
                                                     Command="{Binding AddParamCommand}"/>
                                             <Button Content="Bulk Edit" Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#8B949E" Padding="8,4" Margin="8,0,0,0"
+                                                    Foreground="{DynamicResource TextSecondaryBrush}" Padding="8,4" Margin="8,0,0,0"
                                                     Command="{Binding BulkEditParamsCommand}"/>
                                         </StackPanel>
                                         <!-- Column Headers -->
@@ -325,9 +325,9 @@
                                                 <ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="28"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="1" Text="Key" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                            <TextBlock Grid.Column="2" Text="Value" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                            <TextBlock Grid.Column="3" Text="Description" Foreground="#484F58" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="1" Text="Key" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="2" Text="Value" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="3" Text="Description" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding Params}">
                                             <ItemsControl.ItemTemplate>
@@ -344,15 +344,15 @@
                                                                   VerticalAlignment="Center"/>
                                                         <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="12" Padding="8,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                         <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="12" Padding="8,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                         <TextBox Grid.Column="3" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="11" Padding="6,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D" Foreground="#6E7681"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextMutedBrush}"/>
                                                         <Button Grid.Column="4" Content="&#x2715;" FontSize="10"
-                                                                Style="{StaticResource GhostButton}" Foreground="#484F58" Padding="0"
+                                                                Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextDimBrush}" Padding="0"
                                                                 Command="{Binding DataContext.RemoveParamCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"/>
                                                     </Grid>
@@ -366,12 +366,12 @@
                                           Visibility="{Binding RequestTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=1}">
                                 <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                            <TextBlock Text="Headers" Foreground="#8B949E" FontSize="12" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Headers" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                             <Button Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#2DD4BF" Padding="8,4" Margin="12,0,0,0"
+                                                    Foreground="{DynamicResource AccentBrush}" Padding="8,4" Margin="12,0,0,0"
                                                     Command="{Binding AddHeaderCommand}"/>
                                             <Button Content="Bulk Edit" Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#8B949E" Padding="8,4" Margin="8,0,0,0"
+                                                    Foreground="{DynamicResource TextSecondaryBrush}" Padding="8,4" Margin="8,0,0,0"
                                                     Command="{Binding BulkEditHeadersCommand}"/>
                                         </StackPanel>
                                         <Grid Margin="0,0,0,4">
@@ -382,9 +382,9 @@
                                                 <ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="28"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="1" Text="Name" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                            <TextBlock Grid.Column="2" Text="Value" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                            <TextBlock Grid.Column="3" Text="Description" Foreground="#484F58" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="1" Text="Name" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="2" Text="Value" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                            <TextBlock Grid.Column="3" Text="Description" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding Headers}">
                                             <ItemsControl.ItemTemplate>
@@ -401,15 +401,15 @@
                                                                   VerticalAlignment="Center"/>
                                                         <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="12" Padding="8,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                         <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="12" Padding="8,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                         <TextBox Grid.Column="3" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                  Margin="4,0" FontSize="11" Padding="6,6"
-                                                                 Background="#1C2128" BorderBrush="#21262D" Foreground="#6E7681"/>
+                                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextMutedBrush}"/>
                                                         <Button Grid.Column="4" Content="&#x2715;" FontSize="10"
-                                                                Style="{StaticResource GhostButton}" Foreground="#484F58" Padding="0"
+                                                                Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextDimBrush}" Padding="0"
                                                                 Command="{Binding DataContext.RemoveHeaderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"/>
                                                     </Grid>
@@ -426,8 +426,8 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                    <Border Grid.Row="0" Background="#161B22" Padding="16,10" Margin="0,0,0,0"
-                                            BorderBrush="#21262D" BorderThickness="0,0,0,1">
+                                    <Border Grid.Row="0" Background="{DynamicResource AppElevatedBrush}" Padding="16,10" Margin="0,0,0,0"
+                                            BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
                                         <StackPanel Orientation="Horizontal">
                                             <Button Content="none" Style="{StaticResource GhostButton}" FontSize="11" Padding="10,5"
                                                     Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=none}"
@@ -450,21 +450,21 @@
                                             <Button Content="Binary" Style="{StaticResource GhostButton}" FontSize="11" Padding="10,5"
                                                     Foreground="{Binding BodyType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=binary}"
                                                     Command="{Binding SetBodyTypeCommand}" CommandParameter="binary"/>
-                                            <Rectangle Width="1" Fill="#30363D" Margin="8,0"/>
+                                            <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" Margin="8,0"/>
                                             <Button Content="Format" Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#6E7681" Padding="10,5"
+                                                    Foreground="{DynamicResource TextMutedBrush}" Padding="10,5"
                                                     Command="{Binding FormatJsonCommand}"/>
                                             <Button Content="{Binding BodyWordWrap, Converter={StaticResource WrapTextConverter}}"
                                                     Style="{StaticResource GhostButton}" FontSize="11"
-                                                    Foreground="#6E7681" Padding="10,5"
+                                                    Foreground="{DynamicResource TextMutedBrush}" Padding="10,5"
                                                     Command="{Binding ToggleBodyWordWrapCommand}"/>
-                                            <Rectangle Width="1" Fill="#30363D" Margin="8,0"/>
+                                            <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" Margin="8,0"/>
                                             <ComboBox Width="90" FontSize="11" Margin="2,0,0,0"
                                                       ItemsSource="{Binding BodyLanguages}"
                                                       SelectedItem="{Binding BodyLanguage, Mode=TwoWay}"
                                                       VerticalContentAlignment="Center"
-                                                      Background="#1C2128" BorderBrush="#21262D" Padding="6,3"
-                                                      Foreground="#8B949E" FontFamily="Cascadia Code, Consolas"/>
+                                                      Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Padding="6,3"
+                                                      Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Cascadia Code, Consolas"/>
                                         </StackPanel>
                                     </Border>
 
@@ -474,10 +474,10 @@
                                                Visibility="{Binding Body, Converter={StaticResource JsonValidationConverter}, ConverterParameter=Vis}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#F87171"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource RedBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Body, Converter={StaticResource JsonValidationConverter}, ConverterParameter=IsValid}" Value="True">
-                                                        <Setter Property="Foreground" Value="#34D399"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource GreenBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -491,9 +491,9 @@
                                             <Button Content="Select File" Style="{StaticResource AccentButton}" FontSize="12" Padding="16,8"
                                                     Click="BinaryFilePicker_Click"/>
                                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding BodyFileName}" Foreground="#C9D1D9" FontSize="12"
+                                                <TextBlock Text="{Binding BodyFileName}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"
                                                            FontFamily="Cascadia Code, Consolas"/>
-                                                <TextBlock Foreground="#484F58" FontSize="10" Margin="0,2,0,0">
+                                                <TextBlock Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="0,2,0,0">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0}">
                                                             <Binding Path="BodyFileSize" Converter="{StaticResource FormatSizeConverter}"/>
@@ -513,12 +513,12 @@
                                                   Visibility="{Binding BodyType, Converter={StaticResource FormBodyVisConverter}}">
                                         <StackPanel Margin="16,8">
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                                <TextBlock Text="Form Parameters" Foreground="#8B949E" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock Text="Form Parameters" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                                 <Button Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
-                                                        Foreground="#2DD4BF" Padding="8,4" Margin="12,0,0,0"
+                                                        Foreground="{DynamicResource AccentBrush}" Padding="8,4" Margin="12,0,0,0"
                                                         Command="{Binding AddFormParamCommand}"/>
                                                 <Button Content="Bulk Edit" Style="{StaticResource GhostButton}" FontSize="11"
-                                                        Foreground="#8B949E" Padding="8,4" Margin="8,0,0,0"
+                                                        Foreground="{DynamicResource TextSecondaryBrush}" Padding="8,4" Margin="8,0,0,0"
                                                         Command="{Binding BulkEditFormParamsCommand}"/>
                                             </StackPanel>
                                             <Grid Margin="0,0,0,4">
@@ -530,10 +530,10 @@
                                                     <ColumnDefinition Width="120"/>
                                                     <ColumnDefinition Width="28"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="1" Text="Key" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                                <TextBlock Grid.Column="2" Text="Value" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                                <TextBlock Grid.Column="3" Text="Type" Foreground="#484F58" FontSize="10" Margin="8,0"/>
-                                                <TextBlock Grid.Column="4" Text="Description" Foreground="#484F58" FontSize="10" Margin="8,0"/>
+                                                <TextBlock Grid.Column="1" Text="Key" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                                <TextBlock Grid.Column="2" Text="Value" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                                <TextBlock Grid.Column="3" Text="Type" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
+                                                <TextBlock Grid.Column="4" Text="Description" Foreground="{DynamicResource TextDimBrush}" FontSize="10" Margin="8,0"/>
                                             </Grid>
                                             <ItemsControl ItemsSource="{Binding FormParams}">
                                                 <ItemsControl.ItemTemplate>
@@ -550,28 +550,28 @@
                                                             <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" VerticalAlignment="Center"/>
                                                             <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                                                      Margin="4,0" FontSize="12" Padding="8,6"
-                                                                     Background="#1C2128" BorderBrush="#21262D"/>
+                                                                     Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                             <!-- File type: show file picker; Text type: show Value TextBox -->
                                                             <Button Grid.Column="2" Content="Choose File" FontSize="11"
                                                                     Padding="6,4" Margin="4,0"
-                                                                    Style="{StaticResource GhostButton}" Foreground="#2DD4BF"
+                                                                    Style="{StaticResource GhostButton}" Foreground="{DynamicResource AccentBrush}"
                                                                     Visibility="{Binding ParamType, Converter={StaticResource FileTypeVisConverter}}"
                                                                     Click="FormFilePicker_Click" Tag="{Binding}"/>
                                                             <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                                                      Margin="4,0" FontSize="12" Padding="8,6"
-                                                                     Background="#1C2128" BorderBrush="#21262D"
+                                                                     Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"
                                                                      Visibility="{Binding ParamType, Converter={StaticResource TextTypeVisConverter}}"/>
                                                             <ComboBox Grid.Column="3" SelectedItem="{Binding ParamType, Mode=TwoWay}" Margin="4,0"
                                                                       VerticalContentAlignment="Center"
-                                                                      Background="#1C2128" BorderBrush="#21262D" FontSize="11" Padding="4,2">
+                                                                      Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" FontSize="11" Padding="4,2">
                                                                 <ComboBoxItem Content="Text"/>
                                                                 <ComboBoxItem Content="File"/>
                                                             </ComboBox>
                                                             <TextBox Grid.Column="4" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                      Margin="4,0" FontSize="11" Padding="6,6"
-                                                                     Background="#1C2128" BorderBrush="#21262D" Foreground="#6E7681"/>
+                                                                     Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextMutedBrush}"/>
                                                             <Button Grid.Column="5" Content="&#x2715;" FontSize="10"
-                                                                    Style="{StaticResource GhostButton}" Foreground="#484F58" Padding="0"
+                                                                    Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextDimBrush}" Padding="0"
                                                                     Command="{Binding DataContext.RemoveFormParamCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"/>
                                                         </Grid>
@@ -586,9 +586,9 @@
                                           Visibility="{Binding RequestTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=3}">
                                 <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                            <TextBlock Text="Authorization" Foreground="#8B949E" FontSize="12" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Authorization" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                         </StackPanel>
-                                        <Border Background="#161B22" CornerRadius="8" Padding="16" BorderBrush="#30363D" BorderThickness="1">
+                                        <Border Background="{DynamicResource AppElevatedBrush}" CornerRadius="8" Padding="16" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1">
                                             <StackPanel>
                                                 <WrapPanel Margin="0,0,0,16">
                                                     <Button Content="No Auth" Style="{StaticResource ModernButton}" FontSize="11" Padding="12,6"
@@ -624,11 +624,11 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Grid.Row="0" Text="Token" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                    <TextBlock Grid.Row="0" Text="Token" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="1" Text="{Binding BearerToken, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                 </Grid>
 
                                                 <!-- Basic Auth -->
@@ -649,16 +649,16 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Grid.Row="0" Text="Username" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                    <TextBlock Grid.Row="0" Text="Username" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="1" Text="{Binding BasicUsername, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="2" Text="Password" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="2" Text="Password" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="3" Text="{Binding BasicPassword, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                 </Grid>
 
                                                 <!-- API Key -->
@@ -681,17 +681,17 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Grid.Row="0" Text="Key" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                    <TextBlock Grid.Row="0" Text="Key" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="1" Text="{Binding ApiKeyName, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="2" Text="Value" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="2" Text="Value" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="3" Text="{Binding ApiKeyValue, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="4" Text="Add to" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="4" Text="Add to" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <StackPanel Grid.Row="5" Orientation="Horizontal">
                                                         <Button Content="Header" Style="{StaticResource GhostButton}" FontSize="11" Padding="10,5"
                                                                 Foreground="{Binding ApiKeyLocation, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=header}"
@@ -726,32 +726,32 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Grid.Row="0" Text="Token URL" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                    <TextBlock Grid.Row="0" Text="Token URL" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="1" Text="{Binding OAuthTokenUrl, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="2" Text="Client ID" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="2" Text="Client ID" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="3" Text="{Binding OAuthClientId, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="4" Text="Client Secret" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="4" Text="Client Secret" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="5" Text="{Binding OAuthClientSecret, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
-                                                    <TextBlock Grid.Row="6" Text="Scope" Foreground="#8B949E" FontSize="11" Margin="0,0,0,6"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
+                                                    <TextBlock Grid.Row="6" Text="Scope" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,6"/>
                                                     <TextBox Grid.Row="7" Text="{Binding OAuthScope, UpdateSourceTrigger=PropertyChanged}"
                                                              Padding="10,8" FontSize="13" Margin="0,0,0,12"
                                                              FontFamily="Cascadia Code, Consolas"
-                                                             Background="#0D1117" BorderBrush="#21262D"/>
+                                                             Background="{DynamicResource AppBgBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                                     <StackPanel Grid.Row="8" Orientation="Horizontal">
                                                         <Button Content="Get New Access Token" Style="{StaticResource AccentButton}" FontSize="11" Padding="12,6"
                                                                 Command="{Binding GetOAuthTokenCommand}"/>
                                                     </StackPanel>
                                                     <TextBlock Grid.Row="9" Text="{Binding OAuthTokenStatus}" FontSize="11" Margin="0,6,0,0"
-                                                               Foreground="#34D399" FontFamily="Cascadia Code, Consolas"/>
+                                                               Foreground="{DynamicResource GreenBrush}" FontFamily="Cascadia Code, Consolas"/>
                                                 </Grid>
 
                                                 <!-- No Auth hint -->
@@ -760,7 +760,7 @@
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                             <Setter Property="Text" Value="This request does not use any authentication."/>
-                                                            <Setter Property="Foreground" Value="#484F58"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextDimBrush}"/>
                                                             <Setter Property="FontSize" Value="12"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding AuthType}" Value="none">
@@ -778,10 +778,10 @@
                     </Grid>
                 </Border>
 
-                    <GridSplitter Grid.Row="1" Height="4" Background="#21262D" HorizontalAlignment="Stretch"/>
+                    <GridSplitter Grid.Row="1" Height="4" Background="{DynamicResource BorderSubtleBrush}" HorizontalAlignment="Stretch"/>
 
                     <!-- RESPONSE PANEL (Bottom) -->
-                    <Border Grid.Row="2" Background="#0D1117">
+                    <Border Grid.Row="2" Background="{DynamicResource AppBgBrush}">
                         <Grid ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -791,7 +791,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Status Bar -->
-                            <Border Grid.Row="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="16,10">
+                            <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -805,36 +805,36 @@
 
                                     <!-- Status code -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="Status" Foreground="#6E7681" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Status" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <TextBlock Text="{Binding Response.Status, FallbackValue='—', StringFormat={} {0}}"
                                                    Foreground="{Binding Response.Status, Converter={StaticResource StatusColorConverter}}"
                                                    FontWeight="Bold" FontSize="15" FontFamily="Cascadia Code, Consolas" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Response.StatusText, FallbackValue='Ready'}"
-                                                   Foreground="#8B949E" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
 
-                                    <Rectangle Grid.Column="1" Width="1" Fill="#21262D" Margin="16,2" VerticalAlignment="Stretch"/>
+                                    <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource BorderSubtleBrush}" Margin="16,2" VerticalAlignment="Stretch"/>
 
                                     <!-- Time -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="Time" Foreground="#6E7681" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <TextBlock Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"
+                                        <TextBlock Text="Time" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"
                                                    Text="{Binding Response.Time, FallbackValue='—', StringFormat={}{0} ms}"/>
                                     </StackPanel>
 
-                                    <Rectangle Grid.Column="3" Width="1" Fill="#21262D" Margin="16,2" VerticalAlignment="Stretch"/>
+                                    <Rectangle Grid.Column="3" Width="1" Fill="{DynamicResource BorderSubtleBrush}" Margin="16,2" VerticalAlignment="Stretch"/>
 
                                     <!-- Size + Content-Type -->
                                     <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="Size" Foreground="#6E7681" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <TextBlock Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"
+                                        <TextBlock Text="Size" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"
                                                    Text="{Binding Response.Size, FallbackValue='—', Converter={StaticResource FormatSizeConverter}}"/>
-                                        <TextBlock Text="·" Foreground="#484F58" Margin="10,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Type" Foreground="#6E7681" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="·" Foreground="{DynamicResource TextDimBrush}" Margin="10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Type" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <TextBlock Text="{Binding ResponseContentType, FallbackValue='—'}"
-                                                   Foreground="#2DD4BF" FontSize="12" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource AccentBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"/>
                                     </StackPanel>
 
@@ -844,12 +844,12 @@
                                                    Foreground="{Binding ResponseMethod, Converter={StaticResource MethodColorConverter}}"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding ResponseUrl, FallbackValue=''}" FontSize="11" Margin="8,0,0,0"
-                                                   Foreground="#6E7681" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                                    FontFamily="Cascadia Code, Consolas"/>
                                     </StackPanel>
 
                                     <!-- Loading spinner -->
-                                    <TextBlock Grid.Column="6" Text="&#x27F3;" FontSize="18" Foreground="#2DD4BF"
+                                    <TextBlock Grid.Column="6" Text="&#x27F3;" FontSize="18" Foreground="{DynamicResource AccentBrush}"
                                                HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,0">
                                         <TextBlock.Visibility>
                                             <Binding Path="IsLoading" Converter="{StaticResource BoolToVis}"/>
@@ -873,7 +873,7 @@
                             </Border>
 
                             <!-- Response Tab Buttons -->
-                            <Border Grid.Row="1" Background="#161B22" Padding="16,6" BorderBrush="#21262D" BorderThickness="0,0,1,0">
+                            <Border Grid.Row="1" Background="{DynamicResource AppElevatedBrush}" Padding="16,6" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Body" Style="{StaticResource GhostButton}" FontSize="12" Padding="12,5"
                                             Foreground="{Binding ResponseTabIndex, Converter={StaticResource TabColorConverter}, ConverterParameter=0}"
@@ -888,13 +888,13 @@
                             </Border>
 
                             <!-- Error -->
-                            <Border Grid.Row="2" Background="#1A0A0A" BorderBrush="#F87171" BorderThickness="1,0,1,1"
+                            <Border Grid.Row="2" Background="#1A0A0A" BorderBrush="{DynamicResource RedBrush}" BorderThickness="1,0,1,1"
                                     Padding="16,10" Margin="8,4,8,0" CornerRadius="6">
                                 <Border.Visibility>
                                     <Binding Path="ErrorMessage" Converter="{StaticResource StringNotEmptyToVis}"/>
                                 </Border.Visibility>
                                 <TextBlock Text="{Binding ErrorMessage}"
-                                           Foreground="#F87171" FontSize="12" TextWrapping="Wrap"/>
+                                           Foreground="{DynamicResource RedBrush}" FontSize="12" TextWrapping="Wrap"/>
                             </Border>
 
                             <!-- Response Content Sections -->
@@ -930,25 +930,25 @@
                                                 <Button Content="Preview" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
                                                         Foreground="{Binding ResponseView, Converter={StaticResource ViewToggleColorConverter}, ConverterParameter=preview}"
                                                         Command="{Binding SetResponseViewCommand}" CommandParameter="preview"/>
-                                                <Rectangle Width="1" Fill="#30363D" Margin="8,0"/>
+                                                <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" Margin="8,0"/>
                                                 <Button Content="Copy" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
-                                                        Foreground="#6E7681" Command="{Binding CopyResponseCommand}"/>
+                                                        Foreground="{DynamicResource TextMutedBrush}" Command="{Binding CopyResponseCommand}"/>
                                                 <Button Content="Save" ToolTip="Save response to file" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
-                                                        Foreground="#6E7681" Command="{Binding SaveResponseCommand}"/>
-                                                <Rectangle Width="1" Fill="#30363D" Margin="8,0"/>
+                                                        Foreground="{DynamicResource TextMutedBrush}" Command="{Binding SaveResponseCommand}"/>
+                                                <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" Margin="8,0"/>
                                                 <Button Content="cURL" ToolTip="Copy as cURL" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
-                                                        Foreground="#6E7681" Command="{Binding CopyAsCurlCommand}"/>
+                                                        Foreground="{DynamicResource TextMutedBrush}" Command="{Binding CopyAsCurlCommand}"/>
                                                 <ComboBox Width="90" Margin="6,0,0,0" FontSize="11"
                                                           ItemsSource="{Binding CodeLanguages}"
                                                           SelectedItem="{Binding CodeLanguage, Mode=TwoWay}"
                                                           VerticalContentAlignment="Center"
-                                                          Background="#1C2128" BorderBrush="#21262D" Padding="6,3"
-                                                          Foreground="#8B949E" FontFamily="Cascadia Code, Consolas"/>
+                                                          Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Padding="6,3"
+                                                          Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Cascadia Code, Consolas"/>
                                                 <Button Content="Code" ToolTip="Copy as code snippet" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
-                                                        Foreground="#6E7681" Command="{Binding CopyCodeCommand}"/>
+                                                        Foreground="{DynamicResource TextMutedBrush}" Command="{Binding CopyCodeCommand}"/>
                                             </StackPanel>
                                             <!-- Search box -->
-                                            <Border Grid.Column="1" Background="#1C2128" BorderBrush="#21262D" BorderThickness="1" CornerRadius="6" Margin="16,0,0,0"
+                                            <Border Grid.Column="1" Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="6" Margin="16,0,0,0"
                                                     Visibility="{Binding ResponseView, Converter={StaticResource ResponseViewSearchVisConverter}}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
@@ -959,17 +959,17 @@
                                                              Padding="10,5" BorderThickness="0" Background="Transparent"
                                                              FontSize="12" FontFamily="Cascadia Code, Consolas"
                                                              VerticalContentAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding SearchStatus}" Foreground="#6E7681" FontSize="10"
+                                                    <TextBlock Grid.Column="1" Text="{Binding SearchStatus}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                 </Grid>
                                             </Border>
                                         </Grid>
 
                                         <!-- Timing breakdown bar -->
-                                        <Border Grid.Row="1" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,1,0,1" Padding="16,6"
+                                        <Border Grid.Row="1" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,1" Padding="16,6"
                                                 Visibility="{Binding Response, Converter={StaticResource NullToCollapsedConverter}}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Timing" Foreground="#6E7681" FontSize="10" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                <TextBlock Text="Timing" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                 <ItemsControl ItemsSource="{Binding ResponseTimingSegments}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
@@ -980,8 +980,8 @@
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
                                                                 <Rectangle Width="8" Height="8" Fill="{Binding Color}" RadiusX="2" RadiusY="2" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                                <TextBlock Text="{Binding Label}" Foreground="#8B949E" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                                <TextBlock Text="{Binding Value, StringFormat={}{0}ms}" Foreground="#C9D1D9" FontSize="11"
+                                                                <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding Value, StringFormat={}{0}ms}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
                                                                            FontFamily="Cascadia Code, Consolas" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                         </DataTemplate>
@@ -994,7 +994,7 @@
                                         <Grid Grid.Row="2">
                                             <!-- Pretty: syntax-highlighted RichTextBox -->
                                             <RichTextBox x:Name="ResponseRichTextBox" IsReadOnly="True" BorderThickness="0"
-                                                         Background="#0B0E14" FontFamily="Cascadia Code, Consolas" FontSize="13"
+                                                         Background="{DynamicResource AppSurfaceBrush}" FontFamily="Cascadia Code, Consolas" FontSize="13"
                                                          Visibility="{Binding ResponseView, Converter={StaticResource ResponseViewVisConverter}, ConverterParameter=pretty}"
                                                          ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                                             <!-- Raw: plain TextBox -->
@@ -1002,12 +1002,12 @@
                                                      Text="{Binding DisplayedResponseBody, FallbackValue=''}"
                                                      AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                                                      FontFamily="Cascadia Code, Consolas" FontSize="13" Padding="16"
-                                                     Background="#0B0E14" BorderThickness="0" Foreground="#C9D1D9"
-                                                     SelectionBrush="#2DD4BF" SelectionOpacity="0.3"
+                                                     Background="{DynamicResource AppSurfaceBrush}" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}"
+                                                     SelectionBrush="{DynamicResource AccentBrush}" SelectionOpacity="0.3"
                                                      Visibility="{Binding ResponseView, Converter={StaticResource ResponseViewVisConverter}, ConverterParameter=raw}"/>
                                             <!-- Tree: JSON tree view -->
                                             <TreeView ItemsSource="{Binding JsonTree.Children}"
-                                                      Background="#0B0E14" BorderThickness="0" Foreground="#C9D1D9"
+                                                      Background="{DynamicResource AppSurfaceBrush}" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}"
                                                       FontFamily="Cascadia Code, Consolas" FontSize="12"
                                                       Visibility="{Binding ResponseView, Converter={StaticResource ResponseViewVisConverter}, ConverterParameter=tree}">
                                                 <TreeView.ItemContainerStyle>
@@ -1027,7 +1027,7 @@
                                             </TreeView>
 
                                             <!-- Preview: WebBrowser / Image -->
-                                            <Border Grid.Row="2" Background="#0B0E14"
+                                            <Border Grid.Row="2" Background="{DynamicResource AppSurfaceBrush}"
                                                     Visibility="{Binding ResponseView, Converter={StaticResource ResponseViewVisConverter}, ConverterParameter=preview}">
                                                 <Grid>
                                                     <WebBrowser x:Name="PreviewBrowser"
@@ -1036,7 +1036,7 @@
                                                            Visibility="{Binding IsImageResponse, Converter={StaticResource BoolToVis}}"
                                                            Stretch="Uniform" Margin="16"/>
                                                     <TextBlock Text="Preview not available for this content type"
-                                                               Foreground="#6E7681" FontSize="13"
+                                                               Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <TextBlock.Visibility>
                                                             <Binding Path="ResponseContentType" Converter="{StaticResource StringNotEmptyToVis}"/>
@@ -1053,16 +1053,16 @@
                                 <ItemsControl ItemsSource="{Binding ResponseHeaders}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Margin="0,3" Background="#161B22" Padding="12,8" CornerRadius="6">
+                                                    <Border Margin="0,3" Background="{DynamicResource AppElevatedBrush}" Padding="12,8" CornerRadius="6">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="200"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold"
-                                                                       Foreground="#2DD4BF" FontSize="12" FontFamily="Cascadia Code, Consolas"
+                                                                       Foreground="{DynamicResource AccentBrush}" FontSize="12" FontFamily="Cascadia Code, Consolas"
                                                                        TextTrimming="CharacterEllipsis"/>
-                                                            <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="#8B949E"
+                                                            <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="{DynamicResource TextSecondaryBrush}"
                                                                        FontSize="12" Margin="12,0,0,0" TextWrapping="Wrap"
                                                                        FontFamily="Cascadia Code, Consolas"/>
                                                         </Grid>
@@ -1077,7 +1077,7 @@
                                 <ItemsControl ItemsSource="{Binding ResponseCookies}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Margin="0,3" Background="#161B22" Padding="12,10" CornerRadius="6">
+                                                    <Border Margin="0,3" Background="{DynamicResource AppElevatedBrush}" Padding="12,10" CornerRadius="6">
                                                         <Grid>
                                                             <Grid.RowDefinitions>
                                                                 <RowDefinition Height="Auto"/>
@@ -1085,22 +1085,22 @@
                                                             </Grid.RowDefinitions>
                                                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                                                 <TextBlock Text="{Binding Name}" FontWeight="Bold"
-                                                                           Foreground="#FBBF24" FontSize="13" FontFamily="Cascadia Code, Consolas"/>
-                                                                <TextBlock Text="=" Foreground="#484F58" FontSize="13" FontFamily="Cascadia Code, Consolas" Margin="2,0"/>
-                                                                <TextBlock Text="{Binding Value}" Foreground="#C9D1D9"
+                                                                           Foreground="{DynamicResource AmberBrush}" FontSize="13" FontFamily="Cascadia Code, Consolas"/>
+                                                                <TextBlock Text="=" Foreground="{DynamicResource TextDimBrush}" FontSize="13" FontFamily="Cascadia Code, Consolas" Margin="2,0"/>
+                                                                <TextBlock Text="{Binding Value}" Foreground="{DynamicResource TextPrimaryBrush}"
                                                                            FontSize="13" Margin="4,0,0,0" TextWrapping="Wrap"
                                                                            FontFamily="Cascadia Code, Consolas"/>
                                                             </StackPanel>
                                                             <WrapPanel Grid.Row="1" Margin="0,4,0,0">
-                                                                <TextBlock Text="{Binding Domain, StringFormat='Domain: {0}'}" Foreground="#8B949E" FontSize="10" Margin="0,0,12,0"/>
-                                                                <TextBlock Text="{Binding Path, StringFormat='Path: {0}'}" Foreground="#8B949E" FontSize="10" Margin="0,0,12,0"/>
-                                                                <TextBlock Text="{Binding Expires, StringFormat='Expires: {0}'}" Foreground="#8B949E" FontSize="10" Margin="0,0,12,0"
+                                                                <TextBlock Text="{Binding Domain, StringFormat='Domain: {0}'}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="{Binding Path, StringFormat='Path: {0}'}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="{Binding Expires, StringFormat='Expires: {0}'}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"
                                                                            Visibility="{Binding Expires, Converter={StaticResource StringNotEmptyToVis}}"/>
-                                                                <TextBlock Text="{Binding MaxAge, StringFormat='Max-Age: {0}s'}" Foreground="#8B949E" FontSize="10" Margin="0,0,12,0"
+                                                                <TextBlock Text="{Binding MaxAge, StringFormat='Max-Age: {0}s'}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"
                                                                            Visibility="{Binding MaxAge, Converter={StaticResource NullToVis}}"/>
-                                                                <TextBlock Text="HttpOnly" Foreground="#F87171" FontSize="10" FontWeight="SemiBold" Margin="0,0,8,0"
+                                                                <TextBlock Text="HttpOnly" Foreground="{DynamicResource RedBrush}" FontSize="10" FontWeight="SemiBold" Margin="0,0,8,0"
                                                                            Visibility="{Binding HttpOnly, Converter={StaticResource BoolToVis}}"/>
-                                                                <TextBlock Text="Secure" Foreground="#34D399" FontSize="10" FontWeight="SemiBold" Margin="0,0,8,0"
+                                                                <TextBlock Text="Secure" Foreground="{DynamicResource GreenBrush}" FontSize="10" FontWeight="SemiBold" Margin="0,0,8,0"
                                                                            Visibility="{Binding Secure, Converter={StaticResource BoolToVis}}"/>
                                                                 <TextBlock Text="{Binding SameSite, StringFormat='SameSite={0}'}" Foreground="#A78BFA" FontSize="10"
                                                                            Visibility="{Binding SameSite, Converter={StaticResource StringNotEmptyToVis}}"/>
@@ -1124,7 +1124,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Connection params + status -->
-                    <Border Grid.Row="0" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,0,0,1" Padding="16,10">
+                    <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1136,16 +1136,16 @@
                                     <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
                                         <Ellipse.Style>
                                             <Style TargetType="Ellipse">
-                                                <Setter Property="Fill" Value="#484F58"/>
+                                                <Setter Property="Fill" Value="{DynamicResource TextDimBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding WsConnected}" Value="True">
-                                                        <Setter Property="Fill" Value="#34D399"/>
+                                                        <Setter Property="Fill" Value="{DynamicResource GreenBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Ellipse.Style>
                                     </Ellipse>
-                                    <TextBlock Foreground="#8B949E" FontSize="12" VerticalAlignment="Center">
+                                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center">
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat="{}{0} messages">
                                                 <Binding Path="WsMessages.Count"/>
@@ -1159,11 +1159,11 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Subprotocol" Foreground="#6E7681" FontSize="11"
+                                    <TextBlock Grid.Column="0" Text="Subprotocol" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <TextBox Grid.Column="1" Text="{Binding WsSubprotocols, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="8,5" FontSize="12" Margin="0,0,0,0"
-                                             Background="#1C2128" BorderBrush="#21262D"
+                                             Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"
                                              ToolTip="Comma-separated subprotocols, e.g. chat, superchat"/>
                                 </Grid>
                             </StackPanel>
@@ -1187,15 +1187,15 @@
                                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Type}" FontSize="10" FontWeight="Bold"
                                                            Foreground="{Binding Type, Converter={StaticResource WsMessageFgConverter}}"/>
-                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="#484F58"
+                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="{DynamicResource TextDimBrush}"
                                                            FontFamily="Cascadia Code, Consolas"
                                                            Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}"/>
-                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="#484F58"
+                                                <TextBlock FontSize="10" Margin="12,0,0,0" Foreground="{DynamicResource TextDimBrush}"
                                                            FontFamily="Cascadia Code, Consolas"
                                                            Text="{Binding Size, StringFormat={}{0}B}"/>
                                             </StackPanel>
                                             <TextBlock Grid.Row="1" Text="{Binding Data}" FontSize="13"
-                                                       Foreground="#F0F6FC" TextWrapping="Wrap" Margin="0,6,0,0"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,6,0,0"
                                                        FontFamily="Cascadia Code, Consolas"/>
                                         </Grid>
                                     </Border>
@@ -1205,7 +1205,7 @@
                     </ScrollViewer>
 
                     <!-- WS Headers + Input bar -->
-                    <Border Grid.Row="2" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="0,1,0,0" Padding="12,10,12,12">
+                    <Border Grid.Row="2" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="12,10,12,12">
                         <StackPanel>
                             <!-- WS Handshake Headers -->
                             <Grid Margin="0,0,0,8">
@@ -1213,9 +1213,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Handshake Headers" Foreground="#6E7681" FontSize="11" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="Handshake Headers" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                                 <Button Grid.Column="1" Content="+ Add" Style="{StaticResource GhostButton}" FontSize="11"
-                                        Foreground="#2DD4BF" Padding="8,4"
+                                        Foreground="{DynamicResource AccentBrush}" Padding="8,4"
                                         Command="{Binding AddWsHeaderCommand}"/>
                             </Grid>
                             <ItemsControl ItemsSource="{Binding WsHeaders}" Margin="0,0,0,10">
@@ -1231,12 +1231,12 @@
                                             <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" VerticalAlignment="Center"/>
                                             <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="4,0" FontSize="12" Padding="8,6"
-                                                     Background="#1C2128" BorderBrush="#21262D"/>
+                                                     Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                             <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="4,0" FontSize="12" Padding="8,6"
-                                                     Background="#1C2128" BorderBrush="#21262D"/>
+                                                     Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"/>
                                             <Button Grid.Column="3" Content="&#x2715;" FontSize="10"
-                                                    Style="{StaticResource GhostButton}" Foreground="#484F58" Padding="0"
+                                                    Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextDimBrush}" Padding="0"
                                                     Command="{Binding DataContext.RemoveWsHeaderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                     CommandParameter="{Binding}"/>
                                         </Grid>
@@ -1246,16 +1246,16 @@
 
                             <!-- Message type toggle + Format -->
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <TextBlock Text="Type" Foreground="#6E7681" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Type" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <Button Content="Text" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
                                         Foreground="{Binding WsMessageType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=text}"
                                         Command="{Binding SetWsMessageTypeCommand}" CommandParameter="text"/>
                                 <Button Content="Binary" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
                                         Foreground="{Binding WsMessageType, Converter={StaticResource BodyTypeColorConverter}, ConverterParameter=binary}"
                                         Command="{Binding SetWsMessageTypeCommand}" CommandParameter="binary"/>
-                                <Rectangle Width="1" Fill="#30363D" Margin="8,0"/>
+                                <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" Margin="8,0"/>
                                 <Button Content="Format JSON" Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4"
-                                        Foreground="#6E7681" Command="{Binding FormatWsJsonCommand}"/>
+                                        Foreground="{DynamicResource TextMutedBrush}" Command="{Binding FormatWsJsonCommand}"/>
                             </StackPanel>
 
                             <!-- Multi-line input + send -->
@@ -1269,7 +1269,7 @@
                                          AcceptsReturn="True" TextWrapping="Wrap" Height="80"
                                          VerticalScrollBarVisibility="Auto"
                                          VerticalContentAlignment="Top" Padding="14,8"
-                                         Background="#1C2128" BorderBrush="#21262D" Foreground="#F0F6FC"
+                                         Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
                                          FontFamily="Cascadia Code, Consolas" FontSize="13">
                                     <TextBox.InputBindings>
                                         <KeyBinding Key="Enter" Modifiers="Ctrl" Command="{Binding SendWsMessageCommand}"/>
@@ -1286,11 +1286,11 @@
                 </Grid>
             </Grid>
 
-            <GridSplitter Grid.Column="3" Width="4" Background="#21262D" HorizontalAlignment="Stretch"
+            <GridSplitter Grid.Column="3" Width="4" Background="{DynamicResource BorderSubtleBrush}" HorizontalAlignment="Stretch"
                           Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}"/>
 
             <!-- ENV SIDEBAR -->
-            <Border Grid.Column="4" Background="#0B0E14" BorderBrush="#21262D" BorderThickness="1,0,0,0"
+            <Border Grid.Column="4" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0"
                     Visibility="{Binding ShowEnv, Converter={StaticResource BoolToVisCollapsed}}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -1300,9 +1300,9 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Environment" FontWeight="SemiBold" Padding="16,14,16,4"
-                               Foreground="#8B949E" FontSize="12"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
                     <TextBlock Grid.Row="1" Text="Use &#x007B;&#x007B;variable&#x007D;&#x007D; in URL, headers, body"
-                               Padding="16,0,16,10" Foreground="#484F58" FontSize="11"/>
+                               Padding="16,0,16,10" Foreground="{DynamicResource TextDimBrush}" FontSize="11"/>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding EnvVars}" Margin="12,0">
                             <ItemsControl.ItemTemplate>
@@ -1318,14 +1318,14 @@
                                                   VerticalAlignment="Center"/>
                                         <TextBox Grid.Column="1" Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="3,0" FontSize="11" Padding="6,5"
-                                                 Background="#1C2128" BorderBrush="#21262D"
+                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"
                                                  FontFamily="Cascadia Code, Consolas"/>
                                         <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="3,0" FontSize="11" Padding="6,5"
-                                                 Background="#1C2128" BorderBrush="#21262D"
+                                                 Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"
                                                  FontFamily="Cascadia Code, Consolas"/>
                                         <Button Grid.Column="3" Content="&#x2715;" FontSize="10"
-                                                Style="{StaticResource GhostButton}" Foreground="#484F58" Padding="0"
+                                                Style="{StaticResource GhostButton}" Foreground="{DynamicResource TextDimBrush}" Padding="0"
                                                 Command="{Binding DataContext.RemoveEnvVarCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"/>
                                     </Grid>
@@ -1334,7 +1334,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                     <Button Grid.Row="3" Content="+ Add Variable" Margin="16,12" Padding="10,7"
-                            Style="{StaticResource ModernButton}" Foreground="#2DD4BF" FontSize="11"
+                            Style="{StaticResource ModernButton}" Foreground="{DynamicResource AccentBrush}" FontSize="11"
                             HorizontalAlignment="Left"
                             Command="{Binding AddEnvVarCommand}"/>
                 </Grid>
