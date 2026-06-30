@@ -844,12 +844,12 @@
                             </Border>
 
                             <!-- Response Content Tabs -->
-                            <Grid Grid.Row="2">
+                            <Grid Grid.Row="2" ClipToBounds="True">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Background="#161B22" Padding="16,6" BorderBrush="#21262D" BorderThickness="0,0,1,0">
+                                <Border Grid.Row="0" Background="#161B22" Padding="16,6" BorderBrush="#21262D" BorderThickness="0,0,1,0" ClipToBounds="True">
                                     <StackPanel Orientation="Horizontal">
                                         <Button Content="Body" Style="{StaticResource GhostButton}" FontSize="12" Padding="12,5"
                                                 Foreground="{Binding ResponseTabIndex, Converter={StaticResource TabColorConverter}, ConverterParameter=0}"
@@ -862,7 +862,7 @@
                                                 Command="{Binding SetResponseTabCommand}" CommandParameter="2"/>
                                     </StackPanel>
                                 </Border>
-                                <Grid Grid.Row="1">
+                                <Grid Grid.Row="1" ClipToBounds="True">
                                     <Grid Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=0}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
