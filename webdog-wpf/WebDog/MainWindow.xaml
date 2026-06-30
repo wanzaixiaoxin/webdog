@@ -744,7 +744,7 @@
 
                     <!-- RESPONSE PANEL (Bottom) -->
                     <Border Grid.Row="2" Background="#0D1117">
-                        <Grid>
+                        <Grid ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -861,7 +861,10 @@
 
                             <!-- Response Content Sections -->
                             <Grid Grid.Row="3" ClipToBounds="True">
-                                    <Grid Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=0}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=0}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -1007,7 +1010,7 @@
                                     </Grid>
                                 </Grid>
                             <!-- Headers Section (Tab 1) -->
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8"
+                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="16,8"
                                           Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=1}">
                                 <ItemsControl ItemsSource="{Binding ResponseHeaders}">
                                             <ItemsControl.ItemTemplate>
@@ -1031,7 +1034,7 @@
                                         </ItemsControl>
                                     </ScrollViewer>
                             <!-- Cookies Section (Tab 2) -->
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8"
+                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="16,8"
                                           Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=2}">
                                 <ItemsControl ItemsSource="{Binding ResponseCookies}">
                                             <ItemsControl.ItemTemplate>
