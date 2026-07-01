@@ -43,6 +43,14 @@ namespace WebDog.Services
             var timing = new ResponseTiming();
             var overall = Stopwatch.StartNew();
 
+            if (auth?.Type == "apikey" &&
+                auth.ApiKeyLocation == "query" &&
+                !string.IsNullOrWhiteSpace(auth.ApiKeyName) &&
+                !string.IsNullOrWhiteSpace(auth.ApiKeyValue))
+            {
+                uri = AppendQueryParam(uri, auth.ApiKeyName, auth.ApiKeyValue);
+            }
+
             using var handler = BuildHandler(timing);
             using var client = new HttpClient(handler);
             if (TimeoutSeconds > 0)
@@ -73,8 +81,6 @@ namespace WebDog.Services
                 {
                     if (auth.ApiKeyLocation == "header")
                         request.Headers.TryAddWithoutValidation(auth.ApiKeyName, auth.ApiKeyValue);
-                    else
-                        uri = AppendQueryParam(uri, auth.ApiKeyName, auth.ApiKeyValue);
                 }
                 else if (auth.Type == "oauth2" && !string.IsNullOrWhiteSpace(auth.OAuthAccessToken))
                     request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {auth.OAuthAccessToken}");
@@ -108,7 +114,7 @@ namespace WebDog.Services
                         var form = new MultipartFormDataContent();
                         foreach (var p in pairs)
                         {
-                            if (p.ParamType == "file" && File.Exists(p.Value))
+                            if (string.Equals(p.ParamType, "file", StringComparison.OrdinalIgnoreCase) && File.Exists(p.Value))
                             {
                                 var fileBytes = await File.ReadAllBytesAsync(p.Value, ct);
                                 var fileContent = new ByteArrayContent(fileBytes);
@@ -117,7 +123,7 @@ namespace WebDog.Services
                             }
                             else
                             {
-                                form.Add(new StringContent(p.Value ?? ""), p.Key);
+                                form.Add(new StringContent(p.Value ?? "", Encoding.UTF8), p.Key);
                             }
                         }
                         request.Content = form;
@@ -204,6 +210,7 @@ namespace WebDog.Services
                 Headers = resHeaders,
                 Body = bodyText,
                 RawBody = bodyText,
+                RawBytes = bodyBytes,
                 Time = timing.TotalMs,
                 Size = size,
                 Cookies = cookies,
@@ -215,7 +222,8 @@ namespace WebDog.Services
         {
             var handler = new SocketsHttpHandler
             {
-                // Custom connect callback lets us measure DNS / TCP / TLS phases.
+                // Custom connect callback lets us measure DNS and TCP phases.
+                // SocketsHttpHandler performs TLS after this stream is returned.
                 ConnectCallback = async (ctx, ct) => await ConnectAsync(ctx, timing, ct),
                 AllowAutoRedirect = true,
                 AutomaticDecompression = DecompressionMethods.None,
@@ -268,27 +276,6 @@ namespace WebDog.Services
             timing.ConnectMs = sw.ElapsedMilliseconds;
 
             var stream = new NetworkStream(socket, ownsSocket: true);
-
-            // Detect TLS from the original request scheme (more reliable than port).
-            var scheme = context.InitialRequestMessage?.RequestUri?.Scheme ?? "";
-            var isTls = scheme.Equals("https", StringComparison.OrdinalIgnoreCase);
-            if (isTls || context.DnsEndPoint.Port == 443)
-            {
-                sw.Restart();
-                var sslStream = new SslStream(stream, leaveInnerStreamOpen: false);
-                var sslOptions = new SslClientAuthenticationOptions
-                {
-                    TargetHost = context.DnsEndPoint.Host,
-                };
-                if (SkipCertificateValidation)
-                {
-                    sslOptions.RemoteCertificateValidationCallback = (_, _, _, _) => true;
-                }
-                await sslStream.AuthenticateAsClientAsync(sslOptions, ct);
-                timing.TlsMs = sw.ElapsedMilliseconds;
-                return sslStream;
-            }
-
             return stream;
         }
 

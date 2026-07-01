@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -65,8 +64,7 @@ namespace WebDog
                 e.PropertyName == nameof(MainViewModel.ResponseView))
             {
                 try { RenderHighlightedResponse(); } catch { }
-                if (e.PropertyName == nameof(MainViewModel.ResponseView))
-                    try { RenderPreview(); } catch { }
+                try { RenderPreview(); } catch { }
             }
         }
 
@@ -104,9 +102,10 @@ namespace WebDog
             if (vm.ResponseView != "preview") return;
 
             var body = vm.Response?.RawBody ?? "";
+            var rawBytes = vm.Response?.RawBytes ?? Array.Empty<byte>();
             var contentType = vm.ResponseContentType ?? "";
 
-            if (string.IsNullOrEmpty(body))
+            if (string.IsNullOrEmpty(body) && rawBytes.Length == 0)
             {
                 if (PreviewBrowser != null)
                     PreviewBrowser.NavigateToString("<html><body style='background:#0B0E14;color:#8B949E;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif'><p>Empty response body</p></body></html>");
@@ -118,12 +117,11 @@ namespace WebDog
                 if (PreviewBrowser != null)
                     PreviewBrowser.NavigateToString(body);
             }
-            else if (contentType.StartsWith("image/"))
+            else if (vm.IsImageResponse)
             {
                 try
                 {
-                    var bytes = Encoding.UTF8.GetBytes(body);
-                    using var ms = new MemoryStream(bytes);
+                    using var ms = new MemoryStream(rawBytes);
                     var bitmap = new System.Windows.Media.Imaging.BitmapImage();
                     bitmap.BeginInit();
                     bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;

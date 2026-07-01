@@ -347,14 +347,14 @@ namespace WebDog.Converters
     public class FileTypeVisConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => value?.ToString() == "file" ? Visibility.Visible : Visibility.Collapsed;
+            => string.Equals(value?.ToString(), "file", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
     public class TextTypeVisConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => value?.ToString() != "file" ? Visibility.Visible : Visibility.Collapsed;
+            => !string.Equals(value?.ToString(), "file", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 

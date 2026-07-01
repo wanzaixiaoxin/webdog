@@ -11,6 +11,10 @@ namespace WebDog.Models
         public List<KeyValuePairModel> Headers { get; set; } = new();
         public string BodyType { get; set; } = "json";
         public string Body { get; set; } = "";
+        public string BodyLanguage { get; set; } = "JSON";
+        public string BodyFileName { get; set; } = "";
+        public long BodyFileSize { get; set; }
+        public List<FormParamModel> FormParams { get; set; } = new();
         public AuthConfig Auth { get; set; } = new();
     }
 

@@ -150,19 +150,20 @@ namespace WebDog.ViewModels
             {
                 if (SetProperty(ref _responseView, value))
                 {
+                    OnPropertyChanged(nameof(IsPreviewUnsupported));
                     UpdateDisplayedResponse();
                 }
             }
         }
 
         public bool IsImageResponse =>
-            ResponseContentType != null && (
-                ResponseContentType.StartsWith("image/") ||
-                ResponseContentType == "application/octet-stream"
-            );
+            ResponseContentType != null && ResponseContentType.StartsWith("image/");
 
         public bool IsHtmlResponse =>
             ResponseContentType != null && ResponseContentType.Contains("html");
+
+        public bool IsPreviewUnsupported =>
+            Response != null && ResponseView == "preview" && !IsHtmlResponse && !IsImageResponse;
 
         private string _displayedResponseBody = "";
         public string DisplayedResponseBody { get => _displayedResponseBody; set => SetProperty(ref _displayedResponseBody, value); }
@@ -339,6 +340,7 @@ namespace WebDog.ViewModels
                     "Clear History", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
                 if (!ok) return;
                 History.Clear();
+                OnPropertyChanged(nameof(FilteredHistory));
                 _storage.SaveHistory(new List<HistoryItem>());
             });
             AddParamCommand = new RelayCommand(() => Params.Add(new KeyValuePairModel()));
@@ -396,7 +398,7 @@ namespace WebDog.ViewModels
             });
             SaveResponseCommand = new RelayCommand(() =>
             {
-                if (Response == null || string.IsNullOrEmpty(Response.RawBody)) return;
+                if (Response == null) return;
                 var dlg = new Microsoft.Win32.SaveFileDialog
                 {
                     FileName = "response",
@@ -405,10 +407,19 @@ namespace WebDog.ViewModels
                 };
                 if (dlg.ShowDialog() == true)
                 {
-                    try { System.IO.File.WriteAllText(dlg.FileName, Response.RawBody); }
+                    try
+                    {
+                        if (Response.RawBytes != null && Response.RawBytes.Length > 0)
+                            System.IO.File.WriteAllBytes(dlg.FileName, Response.RawBytes);
+                        else
+                            System.IO.File.WriteAllText(dlg.FileName, Response.RawBody ?? Response.Body ?? "");
+                    }
                     catch (Exception ex) { ErrorMessage = ex.Message; }
                 }
-            }, () => Response != null && !string.IsNullOrEmpty(Response.RawBody));
+            }, () => Response != null &&
+                     ((Response.RawBytes?.Length ?? 0) > 0 ||
+                      !string.IsNullOrEmpty(Response.RawBody) ||
+                      !string.IsNullOrEmpty(Response.Body)));
             FormatJsonCommand = new RelayCommand(() =>
             {
                 try
@@ -651,9 +662,13 @@ namespace WebDog.ViewModels
                     Request = new RequestConfig
                     {
                         Method = Method, Url = Url, Protocol = Protocol,
-                        Params = Params.Select(p => new KeyValuePairModel { Id = p.Id, Key = p.Key, Value = p.Value, Enabled = p.Enabled }).ToList(),
-                        Headers = Headers.Select(h => new KeyValuePairModel { Id = h.Id, Key = h.Key, Value = h.Value, Enabled = h.Enabled }).ToList(),
+                        Params = CloneKeyValuePairs(Params),
+                        Headers = CloneKeyValuePairs(Headers),
                         BodyType = BodyType, Body = Body,
+                        BodyLanguage = BodyLanguage,
+                        BodyFileName = BodyFileName,
+                        BodyFileSize = BodyFileSize,
+                        FormParams = CloneFormParams(FormParams),
                         Auth = new AuthConfig
                         {
                             Type = AuthType, BearerToken = BearerToken, BasicUsername = BasicUsername, BasicPassword = BasicPassword,
@@ -666,6 +681,7 @@ namespace WebDog.ViewModels
                 };
                 History.Insert(0, item);
                 if (History.Count > 200) History.RemoveAt(History.Count - 1);
+                OnPropertyChanged(nameof(FilteredHistory));
                 _storage.SaveHistory(History.ToList());
                 Logger.Info($"SendRequest succeeded: {res.Status} {res.Size} bytes");
             }
@@ -684,9 +700,13 @@ namespace WebDog.ViewModels
                     Request = new RequestConfig
                     {
                         Method = Method, Url = Url, Protocol = Protocol,
-                        Params = Params.Select(p => new KeyValuePairModel { Id = p.Id, Key = p.Key, Value = p.Value, Enabled = p.Enabled }).ToList(),
-                        Headers = Headers.Select(h => new KeyValuePairModel { Id = h.Id, Key = h.Key, Value = h.Value, Enabled = h.Enabled }).ToList(),
+                        Params = CloneKeyValuePairs(Params),
+                        Headers = CloneKeyValuePairs(Headers),
                         BodyType = BodyType, Body = Body,
+                        BodyLanguage = BodyLanguage,
+                        BodyFileName = BodyFileName,
+                        BodyFileSize = BodyFileSize,
+                        FormParams = CloneFormParams(FormParams),
                         Auth = new AuthConfig
                         {
                             Type = AuthType, BearerToken = BearerToken, BasicUsername = BasicUsername, BasicPassword = BasicPassword,
@@ -697,6 +717,7 @@ namespace WebDog.ViewModels
                     },
                 };
                 History.Insert(0, item);
+                OnPropertyChanged(nameof(FilteredHistory));
                 _storage.SaveHistory(History.ToList());
             }
             finally
@@ -821,6 +842,9 @@ namespace WebDog.ViewModels
             OnPropertyChanged(nameof(ResponseMethod));
             OnPropertyChanged(nameof(ResponseUrl));
             OnPropertyChanged(nameof(IsJsonResponse));
+            OnPropertyChanged(nameof(IsImageResponse));
+            OnPropertyChanged(nameof(IsHtmlResponse));
+            OnPropertyChanged(nameof(IsPreviewUnsupported));
             RefreshTimingSegments();
         }
 
@@ -902,6 +926,9 @@ namespace WebDog.ViewModels
             Url = item.Request.Url;
             BodyType = item.Request.BodyType;
             Body = item.Request.Body;
+            BodyLanguage = string.IsNullOrWhiteSpace(item.Request.BodyLanguage) ? "JSON" : item.Request.BodyLanguage;
+            BodyFileName = item.Request.BodyFileName ?? "";
+            BodyFileSize = item.Request.BodyFileSize;
 
             // Restore auth
             if (item.Request.Auth != null)
@@ -928,12 +955,19 @@ namespace WebDog.ViewModels
             }
 
             Params.Clear();
-            foreach (var p in item.Request.Params) Params.Add(new KeyValuePairModel { Id = p.Id, Key = p.Key, Value = p.Value, Enabled = p.Enabled });
+            foreach (var p in item.Request.Params ?? Enumerable.Empty<KeyValuePairModel>())
+                Params.Add(CloneKeyValuePair(p));
             if (Params.Count == 0) Params.Add(new KeyValuePairModel());
 
             Headers.Clear();
-            foreach (var h in item.Request.Headers) Headers.Add(new KeyValuePairModel { Id = h.Id, Key = h.Key, Value = h.Value, Enabled = h.Enabled });
+            foreach (var h in item.Request.Headers ?? Enumerable.Empty<KeyValuePairModel>())
+                Headers.Add(CloneKeyValuePair(h));
             if (Headers.Count == 0) Headers.Add(new KeyValuePairModel());
+
+            FormParams.Clear();
+            foreach (var p in item.Request.FormParams ?? Enumerable.Empty<FormParamModel>())
+                FormParams.Add(CloneFormParam(p));
+            if (FormParams.Count == 0) FormParams.Add(new FormParamModel());
 
             Response = item.Response;
             ResponseCookies.Clear();
@@ -948,6 +982,7 @@ namespace WebDog.ViewModels
             if (item != null)
             {
                 History.Remove(item);
+                OnPropertyChanged(nameof(FilteredHistory));
                 _storage.SaveHistory(History.ToList());
             }
         }
@@ -980,8 +1015,52 @@ namespace WebDog.ViewModels
             }
         }
 
+        private static List<KeyValuePairModel> CloneKeyValuePairs(IEnumerable<KeyValuePairModel> items) =>
+            (items ?? Enumerable.Empty<KeyValuePairModel>()).Select(CloneKeyValuePair).ToList();
+
+        private static KeyValuePairModel CloneKeyValuePair(KeyValuePairModel p) => new()
+        {
+            Id = p.Id,
+            Key = p.Key,
+            Value = p.Value,
+            Description = p.Description,
+            Enabled = p.Enabled,
+        };
+
+        private static List<FormParamModel> CloneFormParams(IEnumerable<FormParamModel> items) =>
+            (items ?? Enumerable.Empty<FormParamModel>()).Select(CloneFormParam).ToList();
+
+        private static FormParamModel CloneFormParam(FormParamModel p) => new()
+        {
+            Id = p.Id,
+            Key = p.Key,
+            Value = p.Value,
+            Description = p.Description,
+            Enabled = p.Enabled,
+            ParamType = string.Equals(p.ParamType, "file", StringComparison.OrdinalIgnoreCase) ? "file" : "text",
+            FileName = p.FileName,
+            FileSize = p.FileSize,
+        };
+
         private static string SuggestExtension(string contentType)
         {
+            if (!string.IsNullOrWhiteSpace(contentType))
+            {
+                var normalized = contentType.Split(';')[0].Trim().ToLowerInvariant();
+                var imageExt = normalized switch
+                {
+                    "image/png" => ".png",
+                    "image/jpeg" => ".jpg",
+                    "image/jpg" => ".jpg",
+                    "image/gif" => ".gif",
+                    "image/webp" => ".webp",
+                    "image/bmp" => ".bmp",
+                    "image/svg+xml" => ".svg",
+                    _ => null
+                };
+                if (imageExt != null) return imageExt;
+            }
+
             var lang = SyntaxHighlighter.Detect(contentType);
             return lang switch
             {

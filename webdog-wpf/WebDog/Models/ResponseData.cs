@@ -9,6 +9,8 @@ namespace WebDog.Models
         public Dictionary<string, string> Headers { get; set; } = new();
         public string Body { get; set; } = "";
         public string RawBody { get; set; } = ""; // unformatted raw body
+        [System.Text.Json.Serialization.JsonIgnore]
+        public byte[] RawBytes { get; set; } = System.Array.Empty<byte>();
         public long Time { get; set; }
         public long Size { get; set; }
         public List<CookieItem> Cookies { get; set; } = new();

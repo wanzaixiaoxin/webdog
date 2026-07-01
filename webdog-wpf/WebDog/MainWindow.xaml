@@ -51,11 +51,13 @@
                     <StackPanel Orientation="Horizontal">
                         <Button Content="HTTP" Padding="16,6" Style="{StaticResource GhostButton}"
                                 Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=http}"
-                                Command="{Binding SetProtocolCommand}" CommandParameter="http"/>
+                                Command="{Binding SetProtocolCommand}" CommandParameter="http"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Rectangle Width="1" Fill="{DynamicResource BorderDefaultBrush}" VerticalAlignment="Stretch" Margin="0,4"/>
                         <Button Content="WebSocket" Padding="16,6" Style="{StaticResource GhostButton}"
                                 Foreground="{Binding Protocol, Converter={StaticResource ProtocolColorConverter}, ConverterParameter=ws}"
-                                Command="{Binding SetProtocolCommand}" CommandParameter="ws"/>
+                                Command="{Binding SetProtocolCommand}" CommandParameter="ws"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Border>
 
@@ -154,12 +156,12 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" Width="80" Text="{Binding WsScheme, Mode=TwoWay}"
+                    <ComboBox Grid.Column="0" Width="80" SelectedValue="{Binding WsScheme, Mode=TwoWay}" SelectedValuePath="Content"
                               IsEditable="False"
                               VerticalContentAlignment="Center"
                               Background="{DynamicResource AppInputBrush}" Foreground="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" Padding="10,5"
                               FontWeight="SemiBold" FontSize="13" FontFamily="Cascadia Code, Consolas">
-                        <ComboBoxItem Content="ws" IsSelected="True"/>
+                        <ComboBoxItem Content="ws"/>
                         <ComboBoxItem Content="wss"/>
                     </ComboBox>
                     <TextBox Grid.Column="1" Margin="10,0" Text="{Binding WsUrl, UpdateSourceTrigger=PropertyChanged}"
@@ -561,11 +563,11 @@
                                                                      Margin="4,0" FontSize="12" Padding="8,6"
                                                                      Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}"
                                                                      Visibility="{Binding ParamType, Converter={StaticResource TextTypeVisConverter}}"/>
-                                                            <ComboBox Grid.Column="3" SelectedItem="{Binding ParamType, Mode=TwoWay}" Margin="4,0"
+                                                            <ComboBox Grid.Column="3" SelectedValue="{Binding ParamType, Mode=TwoWay}" SelectedValuePath="Tag" Margin="4,0"
                                                                       VerticalContentAlignment="Center"
                                                                       Background="{DynamicResource AppInputBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" FontSize="11" Padding="4,2">
-                                                                <ComboBoxItem Content="Text"/>
-                                                                <ComboBoxItem Content="File"/>
+                                                                <ComboBoxItem Content="Text" Tag="text"/>
+                                                                <ComboBoxItem Content="File" Tag="file"/>
                                                             </ComboBox>
                                                             <TextBox Grid.Column="4" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                      Margin="4,0" FontSize="11" Padding="6,6"
@@ -806,7 +808,7 @@
                                     <!-- Status code -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="Status" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <TextBlock Text="{Binding Response.Status, FallbackValue='—', StringFormat={} {0}}"
+                                        <TextBlock Text="{Binding Response.Status, FallbackValue='--', StringFormat={} {0}}"
                                                    Foreground="{Binding Response.Status, Converter={StaticResource StatusColorConverter}}"
                                                    FontWeight="Bold" FontSize="15" FontFamily="Cascadia Code, Consolas" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Response.StatusText, FallbackValue='Ready'}"
@@ -820,7 +822,7 @@
                                         <TextBlock Text="Time" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <TextBlock Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"
-                                                   Text="{Binding Response.Time, FallbackValue='—', StringFormat={}{0} ms}"/>
+                                                   Text="{Binding Response.Time, FallbackValue='--', StringFormat={}{0} ms}"/>
                                     </StackPanel>
 
                                     <Rectangle Grid.Column="3" Width="1" Fill="{DynamicResource BorderSubtleBrush}" Margin="16,2" VerticalAlignment="Stretch"/>
@@ -830,10 +832,10 @@
                                         <TextBlock Text="Size" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <TextBlock Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"
-                                                   Text="{Binding Response.Size, FallbackValue='—', Converter={StaticResource FormatSizeConverter}}"/>
-                                        <TextBlock Text="·" Foreground="{DynamicResource TextDimBrush}" Margin="10,0" VerticalAlignment="Center"/>
+                                                   Text="{Binding Response.Size, FallbackValue='--', Converter={StaticResource FormatSizeConverter}}"/>
+                                        <TextBlock Text="|" Foreground="{DynamicResource TextDimBrush}" Margin="10,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="Type" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <TextBlock Text="{Binding ResponseContentType, FallbackValue='—'}"
+                                        <TextBlock Text="{Binding ResponseContentType, FallbackValue='--'}"
                                                    Foreground="{DynamicResource AccentBrush}" FontSize="12" VerticalAlignment="Center"
                                                    FontFamily="Cascadia Code, Consolas"/>
                                     </StackPanel>
@@ -888,7 +890,7 @@
                             </Border>
 
                             <!-- Error -->
-                            <Border Grid.Row="2" Background="#1A0A0A" BorderBrush="{DynamicResource RedBrush}" BorderThickness="1,0,1,1"
+                            <Border Grid.Row="2" Background="{DynamicResource RedMutedBrush}" BorderBrush="{DynamicResource RedBrush}" BorderThickness="1,0,1,1"
                                     Padding="16,10" Margin="8,4,8,0" CornerRadius="6">
                                 <Border.Visibility>
                                     <Binding Path="ErrorMessage" Converter="{StaticResource StringNotEmptyToVis}"/>
@@ -1039,7 +1041,7 @@
                                                                Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <TextBlock.Visibility>
-                                                            <Binding Path="ResponseContentType" Converter="{StaticResource StringNotEmptyToVis}"/>
+                                                            <Binding Path="IsPreviewUnsupported" Converter="{StaticResource BoolToVis}"/>
                                                         </TextBlock.Visibility>
                                                     </TextBlock>
                                                 </Grid>
