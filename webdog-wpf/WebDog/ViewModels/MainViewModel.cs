@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,11 @@ namespace WebDog.ViewModels
         private readonly StorageService _storage = new();
         private readonly OAuthService _oauthService = new();
         private readonly ThemeService _theme = new();
-        private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+        private readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
         private CancellationTokenSource _httpCts;
 
         // ---- Protocol ----
@@ -437,6 +442,8 @@ namespace WebDog.ViewModels
                 IsDarkTheme = !IsDarkTheme;
                 Logger.Info($"Theme switched to {(IsDarkTheme ? "Dark" : "Light")}");
                 _theme.ApplyTheme(IsDarkTheme);
+                RefreshTimingSegments();
+                OnPropertyChanged(nameof(IsDarkTheme));
             });
             SetProtocolCommand = new RelayCommand<string>(p => Protocol = p);
             SetResponseViewCommand = new RelayCommand<string>(v => ResponseView = v);
@@ -637,7 +644,7 @@ namespace WebDog.ViewModels
                         try
                         {
                             var jsonDoc = JsonDocument.Parse(res.Body);
-                            res.Body = JsonSerializer.Serialize(jsonDoc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+                            res.Body = JsonSerializer.Serialize(jsonDoc.RootElement, _jsonOptions);
                         }
                         catch { }
                     }
@@ -853,19 +860,33 @@ namespace WebDog.ViewModels
             ResponseTimingSegments.Clear();
             var t = Response?.Timing;
             if (t == null) return;
-            System.Windows.Media.Brush B(string hex)
+            ResponseTimingSegments.Add(new TimingSegment { Label = "DNS", Value = t.DnsMs, Color = ThemeBrush("BlueBrush", "#60A5FA") });
+            ResponseTimingSegments.Add(new TimingSegment { Label = "Connect", Value = t.ConnectMs, Color = ThemeBrush("GreenBrush", "#34D399") });
+            ResponseTimingSegments.Add(new TimingSegment { Label = "TLS", Value = t.TlsMs, Color = ThemeBrush("AccentBrush", "#2DD4BF") });
+            ResponseTimingSegments.Add(new TimingSegment { Label = "TTFB", Value = t.TtfbMs, Color = ThemeBrush("AmberBrush", "#FBBF24") });
+            ResponseTimingSegments.Add(new TimingSegment { Label = "Transfer", Value = t.TransferMs, Color = ThemeBrush("TextMutedBrush", "#9BA6B2") });
+            ResponseTimingSegments.Add(new TimingSegment { Label = "Total", Value = t.TotalMs, Color = ThemeBrush("RedBrush", "#F87171") });
+        }
+
+        private static System.Windows.Media.Brush ThemeBrush(string resourceKey, string fallbackHex)
+        {
+            if (Application.Current?.TryFindResource(resourceKey) is System.Windows.Media.Brush brush)
             {
-                var b = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex));
-                b.Freeze();
-                return b;
+                return brush;
             }
-            ResponseTimingSegments.Add(new TimingSegment { Label = "DNS", Value = t.DnsMs, Color = B("#60A5FA") });
-            ResponseTimingSegments.Add(new TimingSegment { Label = "Connect", Value = t.ConnectMs, Color = B("#34D399") });
-            ResponseTimingSegments.Add(new TimingSegment { Label = "TLS", Value = t.TlsMs, Color = B("#A78BFA") });
-            ResponseTimingSegments.Add(new TimingSegment { Label = "TTFB", Value = t.TtfbMs, Color = B("#FBBF24") });
-            ResponseTimingSegments.Add(new TimingSegment { Label = "Transfer", Value = t.TransferMs, Color = B("#2DD4BF") });
-            ResponseTimingSegments.Add(new TimingSegment { Label = "Total", Value = t.TotalMs, Color = B("#F87171") });
+
+            var colorKey = resourceKey.EndsWith("Brush", StringComparison.Ordinal)
+                ? resourceKey[..^5]
+                : resourceKey;
+            if (Application.Current?.TryFindResource(colorKey) is System.Windows.Media.Color color)
+            {
+                return new System.Windows.Media.SolidColorBrush(color);
+            }
+
+            var fallback = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(fallbackHex));
+            fallback.Freeze();
+            return fallback;
         }
 
         // ---- WebSocket ----

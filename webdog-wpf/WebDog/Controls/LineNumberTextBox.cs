@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
 namespace WebDog.Controls
@@ -40,12 +41,12 @@ namespace WebDog.Controls
             {
                 FontFamily = new FontFamily("Cascadia Code, Consolas"),
                 FontSize = 13,
-                Foreground = (Brush)new BrushConverter().ConvertFrom("#484F58"),
                 TextAlignment = TextAlignment.Right,
                 Padding = new Thickness(8, 12, 8, 0),
-                Background = (Brush)new BrushConverter().ConvertFrom("#0B0E14"),
                 VerticalAlignment = VerticalAlignment.Top,
             };
+            _lineNumbers.SetResourceReference(TextBlock.ForegroundProperty, "TextDimBrush");
+            _lineNumbers.SetResourceReference(TextBlock.BackgroundProperty, "AppElevatedBrush");
             Grid.SetColumn(_lineNumbers, 0);
             grid.Children.Add(_lineNumbers);
 
@@ -58,28 +59,14 @@ namespace WebDog.Controls
                 FontFamily = new FontFamily("Cascadia Code, Consolas"),
                 FontSize = 13,
                 Padding = new Thickness(12),
-                Background = (Brush)new BrushConverter().ConvertFrom("#0D1117"),
-                Foreground = (Brush)new BrushConverter().ConvertFrom("#F0F6FC"),
                 BorderThickness = new Thickness(0),
                 VerticalAlignment = VerticalAlignment.Stretch,
-                ContextMenu = new ContextMenu
-                {
-                    Background = (Brush)new BrushConverter().ConvertFrom("#161B22"),
-                    BorderBrush = (Brush)new BrushConverter().ConvertFrom("#30363D"),
-                    Foreground = (Brush)new BrushConverter().ConvertFrom("#F0F6FC"),
-                    Items =
-                    {
-                        CreateMenuItem("Undo", () => _textBox.Undo()),
-                        CreateMenuItem("Redo", () => _textBox.Redo()),
-                        new Separator(),
-                        CreateMenuItem("Cut", () => _textBox.Cut()),
-                        CreateMenuItem("Copy", () => _textBox.Copy()),
-                        CreateMenuItem("Paste", () => _textBox.Paste()),
-                        new Separator(),
-                        CreateMenuItem("Select All", () => _textBox.SelectAll()),
-                    }
-                },
             };
+            _textBox.SetResourceReference(Control.BackgroundProperty, "AppInputBrush");
+            _textBox.SetResourceReference(Control.ForegroundProperty, "TextPrimaryBrush");
+            _textBox.SetResourceReference(TextBoxBase.CaretBrushProperty, "AccentBrush");
+            _textBox.SetResourceReference(Control.BorderBrushProperty, "BorderSubtleBrush");
+            _textBox.ContextMenu = CreateContextMenu();
             _textBox.TextChanged += (s, e) =>
             {
                 Text = _textBox.Text;
@@ -89,7 +76,17 @@ namespace WebDog.Controls
             Grid.SetColumn(_textBox, 1);
             grid.Children.Add(_textBox);
 
-            Content = grid;
+            var border = new Border
+            {
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                ClipToBounds = true,
+                Child = grid,
+            };
+            border.SetResourceReference(Border.BackgroundProperty, "AppInputBrush");
+            border.SetResourceReference(Border.BorderBrushProperty, "BorderDefaultBrush");
+
+            Content = border;
         }
 
         private void UpdateLineNumbers()
@@ -133,6 +130,23 @@ namespace WebDog.Controls
             };
             item.Click += (s, e) => action();
             return item;
+        }
+
+        private ContextMenu CreateContextMenu()
+        {
+            var menu = new ContextMenu();
+            menu.SetResourceReference(Control.BackgroundProperty, "AppElevatedBrush");
+            menu.SetResourceReference(Control.BorderBrushProperty, "BorderDefaultBrush");
+            menu.SetResourceReference(Control.ForegroundProperty, "TextPrimaryBrush");
+            menu.Items.Add(CreateMenuItem("Undo", () => _textBox.Undo()));
+            menu.Items.Add(CreateMenuItem("Redo", () => _textBox.Redo()));
+            menu.Items.Add(new Separator());
+            menu.Items.Add(CreateMenuItem("Cut", () => _textBox.Cut()));
+            menu.Items.Add(CreateMenuItem("Copy", () => _textBox.Copy()));
+            menu.Items.Add(CreateMenuItem("Paste", () => _textBox.Paste()));
+            menu.Items.Add(new Separator());
+            menu.Items.Add(CreateMenuItem("Select All", () => _textBox.SelectAll()));
+            return menu;
         }
     }
 }

@@ -14,9 +14,9 @@
     <Color x:Key="BorderDefault">#30363D</Color>
 
     <Color x:Key="TextPrimary">#F0F6FC</Color>
-    <Color x:Key="TextSecondary">#8B949E</Color>
-    <Color x:Key="TextMuted">#6E7681</Color>
-    <Color x:Key="TextDim">#484F58</Color>
+    <Color x:Key="TextSecondary">#C9D1D9</Color>
+    <Color x:Key="TextMuted">#9BA6B2</Color>
+    <Color x:Key="TextDim">#7D8590</Color>
 
     <Color x:Key="Accent">#2DD4BF</Color>
     <Color x:Key="AccentHover">#5EEAD4</Color>

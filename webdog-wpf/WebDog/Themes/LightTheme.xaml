@@ -2,31 +2,31 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- Colors -->
-    <Color x:Key="AppBg">#F0F2F5</Color>
-    <Color x:Key="AppSurface">#FFFFFF</Color>
-    <Color x:Key="AppElevated">#F6F8FA</Color>
-    <Color x:Key="AppInput">#E8ECF0</Color>
-    <Color x:Key="AppHover">#E0E4E9</Color>
+    <Color x:Key="AppBg">#E9EEF5</Color>
+    <Color x:Key="AppSurface">#F8FAFC</Color>
+    <Color x:Key="AppElevated">#EEF2F7</Color>
+    <Color x:Key="AppInput">#FFFFFF</Color>
+    <Color x:Key="AppHover">#E6F0FF</Color>
 
-    <Color x:Key="BorderSubtle">#D0D7DE</Color>
-    <Color x:Key="BorderDefault">#B0B8C4</Color>
+    <Color x:Key="BorderSubtle">#CBD5E1</Color>
+    <Color x:Key="BorderDefault">#94A3B8</Color>
 
     <Color x:Key="TextPrimary">#1F2328</Color>
-    <Color x:Key="TextSecondary">#656D76</Color>
-    <Color x:Key="TextMuted">#8C959F</Color>
-    <Color x:Key="TextDim">#B0B8C4</Color>
+    <Color x:Key="TextSecondary">#374151</Color>
+    <Color x:Key="TextMuted">#475569</Color>
+    <Color x:Key="TextDim">#64748B</Color>
 
-    <Color x:Key="Accent">#0D9488</Color>
-    <Color x:Key="AccentHover">#0F766E</Color>
+    <Color x:Key="Accent">#0F766E</Color>
+    <Color x:Key="AccentHover">#0D5F59</Color>
     <Color x:Key="AccentMuted">#CCFBF1</Color>
 
-    <Color x:Key="Red">#DC2626</Color>
+    <Color x:Key="Red">#B91C1C</Color>
     <Color x:Key="RedMuted">#FEE2E2</Color>
-    <Color x:Key="Green">#16A34A</Color>
+    <Color x:Key="Green">#15803D</Color>
     <Color x:Key="GreenMuted">#DCFCE7</Color>
-    <Color x:Key="Amber">#D97706</Color>
+    <Color x:Key="Amber">#B45309</Color>
     <Color x:Key="AmberMuted">#FEF3C7</Color>
-    <Color x:Key="Blue">#2563EB</Color>
+    <Color x:Key="Blue">#1D4ED8</Color>
     <Color x:Key="BlueMuted">#DBEAFE</Color>
 
     <!-- Brushes -->

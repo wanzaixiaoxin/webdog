@@ -8,6 +8,34 @@ using System.Windows.Media;
 
 namespace WebDog.Converters
 {
+    internal static class ThemeBrushes
+    {
+        public static Brush Get(string resourceKey, string fallbackHex)
+        {
+            if (Application.Current?.TryFindResource(resourceKey) is Brush brush)
+            {
+                return brush;
+            }
+
+            var colorKey = resourceKey.EndsWith("Brush", StringComparison.Ordinal)
+                ? resourceKey[..^5]
+                : resourceKey;
+            if (Application.Current?.TryFindResource(colorKey) is Color color)
+            {
+                return new SolidColorBrush(color);
+            }
+
+            return Make(fallbackHex);
+        }
+
+        private static SolidColorBrush Make(string hex)
+        {
+            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            brush.Freeze();
+            return brush;
+        }
+    }
+
     public class BoolToGridLengthConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -44,7 +72,9 @@ namespace WebDog.Converters
         {
             var protocol = value?.ToString();
             var expected = parameter?.ToString();
-            return protocol == expected ? new SolidColorBrush(Color.FromRgb(45, 212, 191)) : new SolidColorBrush(Color.FromRgb(139, 148, 158));
+            return protocol == expected
+                ? ThemeBrushes.Get("AccentBrush", "#2DD4BF")
+                : ThemeBrushes.Get("TextMutedBrush", "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -56,16 +86,16 @@ namespace WebDog.Converters
             var m = value?.ToString()?.ToUpperInvariant();
             var color = m switch
             {
-                "GET" => Color.FromRgb(96, 165, 250),
-                "POST" => Color.FromRgb(52, 211, 153),
-                "PUT" => Color.FromRgb(251, 191, 36),
-                "DELETE" => Color.FromRgb(248, 113, 113),
-                "PATCH" => Color.FromRgb(45, 212, 191),
-                "HEAD" => Color.FromRgb(139, 148, 158),
-                "OPTIONS" => Color.FromRgb(96, 165, 250),
-                _ => Color.FromRgb(139, 148, 158),
+                "GET" => "BlueBrush",
+                "POST" => "GreenBrush",
+                "PUT" => "AmberBrush",
+                "DELETE" => "RedBrush",
+                "PATCH" => "AccentBrush",
+                "HEAD" => "TextMutedBrush",
+                "OPTIONS" => "BlueBrush",
+                _ => "TextMutedBrush",
             };
-            return new SolidColorBrush(color);
+            return ThemeBrushes.Get(color, "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -74,17 +104,17 @@ namespace WebDog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return new SolidColorBrush(Color.FromRgb(110, 118, 129));
+            if (value == null) return ThemeBrushes.Get("TextMutedBrush", "#9BA6B2");
             var status = System.Convert.ToInt32(value);
             var color = status switch
             {
-                >= 200 and < 300 => Color.FromRgb(52, 211, 153),
-                >= 300 and < 400 => Color.FromRgb(251, 191, 36),
-                >= 400 and < 500 => Color.FromRgb(248, 113, 113),
-                >= 500 => Color.FromRgb(239, 68, 68),
-                _ => Color.FromRgb(110, 118, 129),
+                >= 200 and < 300 => "GreenBrush",
+                >= 300 and < 400 => "AmberBrush",
+                >= 400 and < 500 => "RedBrush",
+                >= 500 => "RedBrush",
+                _ => "TextMutedBrush",
             };
-            return new SolidColorBrush(color);
+            return ThemeBrushes.Get(color, "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -96,8 +126,8 @@ namespace WebDog.Converters
             var current = value?.ToString();
             var expected = parameter?.ToString();
             return current == expected
-                ? new SolidColorBrush(Color.FromRgb(45, 212, 191))
-                : new SolidColorBrush(Color.FromRgb(100, 116, 139));
+                ? ThemeBrushes.Get("AccentBrush", "#2DD4BF")
+                : ThemeBrushes.Get("TextMutedBrush", "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -109,8 +139,8 @@ namespace WebDog.Converters
             var current = value?.ToString();
             var expected = parameter?.ToString();
             return current == expected
-                ? new SolidColorBrush(Color.FromRgb(45, 212, 191))
-                : new SolidColorBrush(Color.FromRgb(100, 116, 139));
+                ? ThemeBrushes.Get("AccentBrush", "#2DD4BF")
+                : ThemeBrushes.Get("TextMutedBrush", "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -119,8 +149,8 @@ namespace WebDog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (value is bool b && b)
-                ? new SolidColorBrush(Color.FromRgb(248, 113, 113))
-                : new SolidColorBrush(Color.FromRgb(45, 212, 191));
+                ? ThemeBrushes.Get("RedBrush", "#F87171")
+                : ThemeBrushes.Get("AccentBrush", "#2DD4BF");
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
@@ -183,12 +213,12 @@ namespace WebDog.Converters
             var t = value?.ToString();
             var color = t switch
             {
-                "sent" => Color.FromRgb(45, 212, 191),
-                "received" => Color.FromRgb(56, 189, 248),
-                "error" => Color.FromRgb(251, 113, 133),
-                _ => Color.FromRgb(148, 163, 184),
+                "sent" => "AccentBrush",
+                "received" => "BlueBrush",
+                "error" => "RedBrush",
+                _ => "TextMutedBrush",
             };
-            return new SolidColorBrush(color);
+            return ThemeBrushes.Get(color, "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -293,29 +323,17 @@ namespace WebDog.Converters
 
     public class JsonNodeTypeColorConverter : IValueConverter
     {
-        private static readonly SolidColorBrush String = Make("#A5D6FF");
-        private static readonly SolidColorBrush Number = Make("#79C0FF");
-        private static readonly SolidColorBrush Bool = Make("#FF7B72");
-        private static readonly SolidColorBrush Null = Make("#6E7681");
-        private static readonly SolidColorBrush Struct = Make("#8B949E");
-
-        private static SolidColorBrush Make(string hex)
-        {
-            var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
-            b.Freeze();
-            return b;
-        }
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value?.ToString() switch
+            var key = value?.ToString() switch
             {
-                "string" => String,
-                "number" => Number,
-                "boolean" => Bool,
-                "null" => Null,
-                _ => Struct,
+                "string" => "GreenBrush",
+                "number" => "BlueBrush",
+                "boolean" => "RedBrush",
+                "null" => "TextMutedBrush",
+                _ => "TextSecondaryBrush",
             };
+            return ThemeBrushes.Get(key, "#9BA6B2");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
@@ -382,24 +400,17 @@ namespace WebDog.Converters
 
     public class TabColorConverter : IValueConverter
     {
-        private static readonly SolidColorBrush Active;
-        private static readonly SolidColorBrush Inactive;
-        static TabColorConverter()
-        {
-            Active = new SolidColorBrush(Color.FromRgb(45, 212, 191));
-            Inactive = new SolidColorBrush(Color.FromRgb(100, 116, 139));
-            Active.Freeze();
-            Inactive.Freeze();
-        }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             try
             {
                 var v = value?.ToString();
                 var p = parameter?.ToString();
-                return v == p ? Active : Inactive;
+                return v == p
+                    ? ThemeBrushes.Get("AccentBrush", "#2DD4BF")
+                    : ThemeBrushes.Get("TextMutedBrush", "#9BA6B2");
             }
-            catch { return Inactive; }
+            catch { return ThemeBrushes.Get("TextMutedBrush", "#9BA6B2"); }
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }

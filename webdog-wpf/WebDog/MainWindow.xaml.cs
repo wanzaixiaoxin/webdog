@@ -19,6 +19,7 @@ namespace WebDog
         public MainWindow()
         {
             InitializeComponent();
+            UpdateWindowFrame();
             Loaded += MainWindow_Loaded;
             StateChanged += MainWindow_StateChanged;
         }
@@ -37,6 +38,27 @@ namespace WebDog
             {
                 icon.Data = Geometry.Parse("M0,0 L10,0 L10,10 L0,10 Z");
                 MaximizeButton.ToolTip = "Maximize";
+            }
+            UpdateWindowFrame();
+        }
+
+        private void UpdateWindowFrame()
+        {
+            if (OuterWindowFrame == null) return;
+
+            if (WindowState == WindowState.Maximized)
+            {
+                OuterWindowFrame.Margin = new Thickness(0);
+                OuterWindowFrame.CornerRadius = new CornerRadius(0);
+                OuterWindowFrame.BorderThickness = new Thickness(0);
+                OuterWindowFrame.Effect = null;
+            }
+            else
+            {
+                OuterWindowFrame.Margin = new Thickness(18);
+                OuterWindowFrame.CornerRadius = new CornerRadius(12);
+                OuterWindowFrame.BorderThickness = new Thickness(1);
+                OuterWindowFrame.Effect = TryFindResource("WindowShadowEffect") as System.Windows.Media.Effects.Effect;
             }
         }
 
@@ -61,7 +83,8 @@ namespace WebDog
         {
             if (e.PropertyName == nameof(MainViewModel.DisplayedResponseBody) ||
                 e.PropertyName == nameof(MainViewModel.ResponseContentType) ||
-                e.PropertyName == nameof(MainViewModel.ResponseView))
+                e.PropertyName == nameof(MainViewModel.ResponseView) ||
+                e.PropertyName == nameof(MainViewModel.IsDarkTheme))
             {
                 try { RenderHighlightedResponse(); } catch { }
                 try { RenderPreview(); } catch { }
@@ -108,7 +131,7 @@ namespace WebDog
             if (string.IsNullOrEmpty(body) && rawBytes.Length == 0)
             {
                 if (PreviewBrowser != null)
-                    PreviewBrowser.NavigateToString("<html><body style='background:#0B0E14;color:#8B949E;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif'><p>Empty response body</p></body></html>");
+                    PreviewBrowser.NavigateToString(BuildPreviewMessageHtml("Empty response body"));
                 return;
             }
 
@@ -140,16 +163,50 @@ namespace WebDog
             else if (contentType.Contains("json") || contentType.Contains("xml"))
             {
                 var escaped = System.Net.WebUtility.HtmlEncode(body);
-                var html = $"<html><head><style>body{{background:#0B0E14;color:#C9D1D9;font-family:Consolas,monospace;padding:16px;white-space:pre-wrap;font-size:13px}}</style></head><body>{escaped}</body></html>";
+                var html = BuildPreformattedPreviewHtml(escaped);
                 if (PreviewBrowser != null)
                     PreviewBrowser.NavigateToString(html);
             }
             else
             {
                 if (PreviewBrowser != null)
-                    PreviewBrowser.NavigateToString($"<html><body style='background:#0B0E14;color:#8B949E;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif'><p>Preview not available for {System.Net.WebUtility.HtmlEncode(contentType)}</p></body></html>");
+                    PreviewBrowser.NavigateToString(BuildPreviewMessageHtml($"Preview not available for {System.Net.WebUtility.HtmlEncode(contentType)}"));
             }
         }
+
+        private static string BuildPreviewMessageHtml(string message)
+        {
+            var bg = CssColor("AppSurfaceBrush", "#0B0E14");
+            var fg = CssColor("TextMutedBrush", "#9BA6B2");
+            return $"<html><body style='background:{bg};color:{fg};display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif'><p>{message}</p></body></html>";
+        }
+
+        private static string BuildPreformattedPreviewHtml(string escapedBody)
+        {
+            var bg = CssColor("AppSurfaceBrush", "#0B0E14");
+            var fg = CssColor("TextPrimaryBrush", "#F0F6FC");
+            return $"<html><head><style>body{{background:{bg};color:{fg};font-family:Consolas,monospace;padding:16px;white-space:pre-wrap;font-size:13px}}</style></head><body>{escapedBody}</body></html>";
+        }
+
+        private static string CssColor(string resourceKey, string fallback)
+        {
+            if (Application.Current?.TryFindResource(resourceKey) is SolidColorBrush brush)
+            {
+                return ToHex(brush.Color);
+            }
+
+            var colorKey = resourceKey.EndsWith("Brush", StringComparison.Ordinal)
+                ? resourceKey[..^5]
+                : resourceKey;
+            if (Application.Current?.TryFindResource(colorKey) is Color color)
+            {
+                return ToHex(color);
+            }
+
+            return fallback;
+        }
+
+        private static string ToHex(Color color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
 
         private void HistoryItem_Click(object sender, MouseButtonEventArgs e)
         {

@@ -9,7 +9,8 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="WebDog" Height="850" Width="1200"
-        Background="{DynamicResource AppBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
+        Background="Transparent" Foreground="{DynamicResource TextPrimaryBrush}"
+        AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
         TextOptions.TextFormattingMode="Display"
         UseLayoutRounding="True"
@@ -24,12 +25,21 @@
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Background="Transparent">
+        <Border x:Name="OuterWindowFrame"
+                Margin="18"
+                Background="{DynamicResource AppBgBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                Effect="{DynamicResource WindowShadowEffect}"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
         <!-- HEADER -->
         <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
@@ -791,7 +801,6 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-
                             <!-- Status Bar -->
                             <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                 <Grid>
@@ -1021,7 +1030,7 @@
                                                 <TreeView.ItemTemplate>
                                                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Key}" Foreground="#79C0FF" FontWeight="SemiBold" Margin="0,0,6,0"/>
+                                                            <TextBlock Text="{Binding Key}" Foreground="{DynamicResource BlueBrush}" FontWeight="SemiBold" Margin="0,0,6,0"/>
                                                             <TextBlock Text="{Binding Display}" Foreground="{Binding Type, Converter={StaticResource JsonNodeTypeColorConverter}}"/>
                                                         </StackPanel>
                                                     </HierarchicalDataTemplate>
@@ -1048,11 +1057,11 @@
                                             </Border>
                                         </Grid>
                                     </Grid>
-                                </Grid>
                             <!-- Headers Section (Tab 1) -->
-                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="16,8"
-                                          Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=1}">
-                                <ItemsControl ItemsSource="{Binding ResponseHeaders}">
+                            <Grid Grid.Row="0" ClipToBounds="True"
+                                  Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=1}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8">
+                                    <ItemsControl ItemsSource="{Binding ResponseHeaders}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Margin="0,3" Background="{DynamicResource AppElevatedBrush}" Padding="12,8" CornerRadius="6">
@@ -1071,12 +1080,14 @@
                                                     </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
                             <!-- Cookies Section (Tab 2) -->
-                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="16,8"
-                                          Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=2}">
-                                <ItemsControl ItemsSource="{Binding ResponseCookies}">
+                            <Grid Grid.Row="0" ClipToBounds="True"
+                                  Visibility="{Binding ResponseTabIndex, Converter={StaticResource EqToVis}, ConverterParameter=2}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8">
+                                    <ItemsControl ItemsSource="{Binding ResponseCookies}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Margin="0,3" Background="{DynamicResource AppElevatedBrush}" Padding="12,10" CornerRadius="6">
@@ -1104,16 +1115,18 @@
                                                                            Visibility="{Binding HttpOnly, Converter={StaticResource BoolToVis}}"/>
                                                                 <TextBlock Text="Secure" Foreground="{DynamicResource GreenBrush}" FontSize="10" FontWeight="SemiBold" Margin="0,0,8,0"
                                                                            Visibility="{Binding Secure, Converter={StaticResource BoolToVis}}"/>
-                                                                <TextBlock Text="{Binding SameSite, StringFormat='SameSite={0}'}" Foreground="#A78BFA" FontSize="10"
+                                                                <TextBlock Text="{Binding SameSite, StringFormat='SameSite={0}'}" Foreground="{DynamicResource AccentBrush}" FontSize="10"
                                                                            Visibility="{Binding SameSite, Converter={StaticResource StringNotEmptyToVis}}"/>
                                                             </WrapPanel>
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
+                                    </ItemsControl>
+                                </ScrollViewer>
                             </Grid>
+                            </Grid>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -1341,6 +1354,8 @@
                             Command="{Binding AddEnvVarCommand}"/>
                 </Grid>
             </Border>
-        </Grid>
+            </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

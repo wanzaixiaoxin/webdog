@@ -1,5 +1,8 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace WebDog.Services
@@ -35,6 +38,7 @@ namespace WebDog.Services
                     var oldBg = w.Background;
                     w.Background = null;
                     w.Background = oldBg;
+                    RefreshThemeBindings(w);
                 }
             }
             catch (Exception ex)
@@ -44,6 +48,29 @@ namespace WebDog.Services
             finally
             {
                 _switching = false;
+            }
+        }
+
+        private static void RefreshThemeBindings(DependencyObject root)
+        {
+            if (root is Control control)
+            {
+                BindingOperations.GetBindingExpression(control, Control.ForegroundProperty)?.UpdateTarget();
+            }
+            else if (root is TextBlock textBlock)
+            {
+                BindingOperations.GetBindingExpression(textBlock, TextBlock.ForegroundProperty)?.UpdateTarget();
+            }
+
+            if (root is not Visual && root is not System.Windows.Media.Media3D.Visual3D)
+            {
+                return;
+            }
+
+            var childCount = VisualTreeHelper.GetChildrenCount(root);
+            for (var i = 0; i < childCount; i++)
+            {
+                RefreshThemeBindings(VisualTreeHelper.GetChild(root, i));
             }
         }
     }

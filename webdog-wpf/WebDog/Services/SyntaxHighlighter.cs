@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
@@ -14,24 +15,36 @@ namespace WebDog.Services
     /// </summary>
     public static class SyntaxHighlighter
     {
-        private static readonly Brush CKey = Brush("#79C0FF");
-        private static readonly Brush CString = Brush("#A5D6FF");
-        private static readonly Brush CNumber = Brush("#79C0FF");
-        private static readonly Brush CBoolNull = Brush("#FF7B72");
-        private static readonly Brush CPunct = Brush("#8B949E");
-        private static readonly Brush CTag = Brush("#7EE787");
-        private static readonly Brush CAttr = Brush("#79C0FF");
-        private static readonly Brush CComment = Brush("#6E7681");
-        private static readonly Brush CDefault = Brush("#C9D1D9");
-        private static readonly Brush CError = Brush("#F87171");
-
-        private static Brush Brush(string hex)
+        private static Brush ThemeBrush(string resourceKey, string fallbackHex)
         {
-            var c = (Color)ColorConverter.ConvertFromString(hex);
-            var b = new SolidColorBrush(c);
+            if (Application.Current?.TryFindResource(resourceKey) is Brush brush)
+            {
+                return brush;
+            }
+
+            var colorKey = resourceKey.EndsWith("Brush", StringComparison.Ordinal)
+                ? resourceKey[..^5]
+                : resourceKey;
+            if (Application.Current?.TryFindResource(colorKey) is Color color)
+            {
+                return new SolidColorBrush(color);
+            }
+
+            var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(fallbackHex));
             b.Freeze();
             return b;
         }
+
+        private static Brush CKey => ThemeBrush("BlueBrush", "#60A5FA");
+        private static Brush CString => ThemeBrush("GreenBrush", "#34D399");
+        private static Brush CNumber => ThemeBrush("BlueBrush", "#60A5FA");
+        private static Brush CBoolNull => ThemeBrush("RedBrush", "#F87171");
+        private static Brush CPunct => ThemeBrush("TextMutedBrush", "#9BA6B2");
+        private static Brush CTag => ThemeBrush("AccentBrush", "#2DD4BF");
+        private static Brush CAttr => ThemeBrush("BlueBrush", "#60A5FA");
+        private static Brush CComment => ThemeBrush("TextDimBrush", "#7D8590");
+        private static Brush CDefault => ThemeBrush("TextPrimaryBrush", "#F0F6FC");
+        private static Brush CError => ThemeBrush("RedBrush", "#F87171");
 
         public enum Language { Json, Xml, Html, Plain }
 
